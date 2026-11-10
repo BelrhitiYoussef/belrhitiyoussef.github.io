@@ -495,46 +495,6 @@ body.lb-open { overflow: hidden; }
 
 /* ---------- sans JavaScript : les éléments interactifs restent cachés ---------- */
 html:not(.js) .js-only { display: none !important; }
-.r-titre .encre { background: var(--fg); color: var(--bg); }
-
-/* ---------- banc d'essai : halle calculée en direct ---------- */
-.essai-grid {
-  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  grid-template-areas: "tete scene" "cmd scene"; grid-template-rows: auto 1fr;
-  gap: 30px clamp(32px, 5vw, 72px); align-items: start;
-}
-.essai-tete { grid-area: tete; }
-.essai-scene { grid-area: scene; position: relative; min-width: 0; }
-.essai-cmd { grid-area: cmd; min-width: 0; }
-@media (max-width: 900px) {
-  .essai-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "tete" "scene" "cmd"; grid-template-rows: none; }
-}
-.essai-intro { font-size: 17px; line-height: 1.68; max-width: 62ch; margin-top: 24px; }
-@media (min-width: 901px) and (min-height: 700px) { .essai-scene { position: sticky; top: 20px; } }
-#halle {
-  display: block; width: 100%; aspect-ratio: 4 / 3; background: var(--bg); border: 1px solid var(--line);
-  touch-action: pan-y; cursor: grab; -webkit-user-select: none; user-select: none;
-}
-#halle:active { cursor: grabbing; }
-#halle:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
-@media (max-width: 560px) { #halle { aspect-ratio: 1 / 1.04; } }
-.scene-etiq {
-  position: absolute; left: 14px; right: 14px; top: 12px; pointer-events: none;
-  font: 400 12px/1.5 var(--mono); color: var(--muted);
-}
-.scene-etiq b { color: var(--fg); font-weight: 600; }
-.scene-pied {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 18px;
-  margin-top: 12px; font: 400 12px/1.4 var(--mono); color: var(--muted);
-}
-.echelle { display: inline-flex; align-items: center; gap: 9px; font-variant-numeric: tabular-nums; }
-.echelle i { display: block; width: clamp(96px, 16vw, 180px); height: 8px; background: var(--line); }
-.cas { display: flex; flex-wrap: wrap; gap: 8px; }
-.essai-cmd .sous-partie { margin: 0 0 12px; }
-.essai-cmd .cas + .sous-partie { margin-top: 26px; }
-.mesures { margin-top: 30px; }
-.mesures .chiffre .val { white-space: nowrap; }
-.essai-note { margin-top: 22px; font: 400 12.5px/1.65 var(--mono); color: var(--muted); max-width: 62ch; }
 
 /* ---------- couverture vivante : la console simulée en direct (js/hero.js) ---------- */
 .scene-poutre {
@@ -577,6 +537,55 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
 .fil-vif > .fil { visibility: visible; }
 .pl-head.fil-vif, .topbar.fil-vif { border-bottom-color: transparent; }
 .score-c.fil-vif, .chiffres.fil-vif { border-top-color: transparent; }
+
+/* ---------- mini Youssef : la figurine qui accompagne la visite (js/guide.js) ---------- */
+.guide {
+  position: fixed; left: 0; top: 0; width: 0; height: 0; z-index: 45; pointer-events: none; visibility: hidden;
+  --g-l: 50px; --g-h: 72px; --g-trait: #16181d; --g-pant: #3d4654; --g-botte: #262a31; --g-semelle: #5d6672;
+}
+.guide.la { visibility: visible; }
+.guide.sur-page { position: absolute; }
+@media (max-width: 640px) { .guide { --g-l: 40px; --g-h: 57.5px; } }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .guide { --g-trait: #07080a; --g-pant: #5b667c; --g-botte: #3b424f; --g-semelle: #8d96a3; }
+}
+:root[data-theme="dark"] .guide { --g-trait: #07080a; --g-pant: #5b667c; --g-botte: #3b424f; --g-semelle: #8d96a3; }
+.guide-corps {
+  position: absolute; left: 0; top: 0; width: var(--g-l); height: var(--g-h);
+  transform: translate3d(-300px, -300px, 0); will-change: transform; transition: opacity .3s;
+}
+.guide.sort .guide-corps { opacity: 0; }
+.g-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.g-svg .t { stroke: var(--g-trait); stroke-width: 1.5px; stroke-linejoin: round; stroke-linecap: round; }
+.g-ombre { fill: #000; opacity: .16; }
+.guide-clic {
+  position: absolute; left: 8%; top: 0; width: 84%; height: 72%; padding: 0; border: 0; background: none;
+  cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent;
+}
+.guide-clic:focus { outline: none; }
+.guide-bulle {
+  position: absolute; left: 0; top: 0; width: max-content; max-width: min(232px, calc(100vw - 24px));
+  padding: 8px 11px 9px; background: var(--bg); color: var(--fg); border: 1.5px solid var(--fg);
+  font: 400 12px/1.45 var(--mono); opacity: 0; visibility: hidden; transition: opacity .18s, visibility .18s;
+}
+.guide-bulle.on { opacity: 1; visibility: visible; }
+.guide-bulle p { margin: 0; }
+.guide-bulle button {
+  display: block; margin-top: 8px; padding: 6px 8px; border: 1px solid var(--fg); background: none; color: var(--fg);
+  font: 600 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+}
+.guide-bulle button:hover { background: var(--fg); color: var(--bg); }
+.guide-bulle.active button { pointer-events: auto; }
+.guide-pointe {
+  position: absolute; left: var(--px, 50%); bottom: -6.5px; width: 10px; height: 10px; margin-left: -5px;
+  background: var(--bg); border-right: 1.5px solid var(--fg); border-bottom: 1.5px solid var(--fg); transform: rotate(45deg);
+}
+.guide-bulle.dessous .guide-pointe { bottom: auto; top: -6.5px; transform: rotate(225deg); }
+.guide-bulle.a-droite .guide-pointe { left: -6.5px; bottom: auto; top: var(--py, 50%); margin: -5px 0 0; transform: rotate(135deg); }
+.guide-bulle.a-gauche .guide-pointe { left: auto; right: -6.5px; bottom: auto; top: var(--py, 50%); margin: -5px 0 0; transform: rotate(-45deg); }
+.fig-console .si-guide, .fig-console.avec-guide .sans-guide { display: none; }
+.fig-console.avec-guide .si-guide { display: inline; }
+@media print { .guide { display: none; } }
 
 </style>
 </head>
@@ -660,24 +669,23 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
 </svg></div>
 <figcaption class="fig"><span class="fig-g"><span class="fig-titre"><b>FIG. 00</b> Console sous charge répartie q<span class="fig-eq" aria-hidden="true">|M(x)| = q·x²/2<span class="terme-p" id="terme-p"> + P·(x − a) pour x &gt; a</span></span></span>
 <span class="lecture js-only" aria-hidden="true"><span>Moment à l’encastrement <strong id="lect-m">×1,00</strong></span><span>Flèche en bout de console <strong id="lect-f">×1,00</strong></span></span></span>
-<span class="hint"><span class="js-only"><span class="h-souris">Passez le curseur sur la poutre, il devient une charge P. </span><span class="h-tactile">Posez le doigt sur la poutre, il devient une charge P. </span></span>Un nœud ouvre le stage correspondant.</span></figcaption></figure>
+<span class="hint"><span class="js-only"><span class="sans-guide"><span class="h-souris">Passez le curseur sur la poutre, il devient une charge P. </span><span class="h-tactile">Posez le doigt sur la poutre, il devient une charge P. </span></span><span class="si-guide"><span class="h-souris">Le mini Youssef suit votre curseur sur la poutre, qui fléchit sous son poids P. Cliquez pour le faire sauter. </span><span class="h-tactile">Touchez la poutre, le mini Youssef vous y rejoint et elle fléchit sous son poids P. </span></span></span>Un nœud ouvre le stage correspondant.</span></figcaption></figure>
 <h1 class="nom">Youssef Belrhiti</h1>
 <p class="role">Élève ingénieur en génie civil</p>
 <p class="ecole">École Marocaine des Sciences de l’Ingénieur (EMSI), Tanger</p>
 <p class="domaines">Stages, projet académique, vie associative et présentations</p>
 <div class="cta"><a class="btn" href="#profil" data-express="off">J’ai le temps<small>Profil complet</small></a>
-<a class="btn plein" href="#essentiel" data-express="on">Je n’ai que 30 secondes<small>L’essentiel, en mode express</small></a>
-<a class="btn js-only" href="#banc-essai" data-express="off">Je veux une démonstration<small>Une halle en acier calculée en direct</small></a></div>
+<a class="btn plein" href="#essentiel" data-express="on">Je n’ai que 30 secondes<small>L’essentiel, en mode express</small></a></div>
 <div class="tb-cart" role="group" aria-label="Cartouche">
 <div class="c c4"><span>Auteur</span>Youssef Belrhiti</div><div class="c c3"><span>École</span>EMSI Tanger</div>
-<div class="c c2"><span>Planche</span>01/14</div><div class="c c3"><span>Édition</span>2026, indice B</div>
+<div class="c c2"><span>Planche</span>01/13</div><div class="c c3"><span>Édition</span>2026, indice B</div>
 <div class="c c5"><span>E-mail</span><a class="sel" id="mail1" href="mailto:Youssef.Belrhiti@emsi-edu.ma">Youssef.Belrhiti@emsi-edu.ma</a><button class="copier" type="button" data-copy="Youssef.Belrhiti@emsi-edu.ma" data-target="mail1">Copier</button></div>
 <div class="c c5"><span>LinkedIn</span><a href="https://www.linkedin.com/in/youssef-belrhiti-206999392" target="_blank" rel="noopener">linkedin.com/in/youssef-belrhiti-206999392</a></div>
 <div class="c c2"><span>Lieu</span>Tanger, Maroc</div>
 <div class="c c12"><span>Nomenclature</span><ul class="nomen"><li><a href="#bayti-2022"><i class="sq" style="--c:var(--ch)"></i><b>CH</b>Chantier</a></li><li><a href="#jgh"><i class="sq" style="--c:var(--lab)"></i><b>LAB</b>Laboratoire</a></li><li><a href="#tanger-med"><i class="sq" style="--c:var(--be)"></i><b>BE</b>Bureau d’études</a></li><li><a href="#maquette"><i class="sq" style="--c:var(--pa)"></i><b>PA</b>Projet académique</a></li><li><a href="#civilis"><i class="sq" style="--c:var(--va)"></i><b>VA</b>Vie associative</a></li><li><a href="#presentations"><i class="sq" style="--c:var(--pr)"></i><b>PR</b>Présentations</a></li></ul></div></div>
 </div></section>
 <section class="planche" id="profil" data-pl="02" data-code="CV 01/01" data-dom="all"><div class="wrap">
-<header class="pl-head"><span>PL. 02/14</span><span><b>CV</b> 01/01</span><span class="pl-dom"><i class="sq" style="--c:var(--fg)"></i>Profil</span></header>
+<header class="pl-head"><span>PL. 02/13</span><span><b>CV</b> 01/01</span><span class="pl-dom"><i class="sq" style="--c:var(--fg)"></i>Profil</span></header>
 <h2 class="accroche">Je sais que votre temps est précieux.<br> Si vous en avez un peu, voici mon profil.</h2>
 <div class="profil x-hide"><div class="portrait"><img src="images/portrait.jpg" alt="Portrait de Youssef Belrhiti en tenue de chantier" width="260" height="260"></div>
 <div class="profil-txt"><p>Élève ingénieur en dernière année de génie civil à l’École Marocaine des Sciences de l’Ingénieur (EMSI) de Tanger, je suis major de promotion chaque année depuis 2022. Mes cinq stages m’ont fait passer du chantier au laboratoire, puis au bureau d’études, où j’ai dimensionné la charpente métallique d’une usine. En parallèle, j’ai présidé CIVILIS, le club de génie civil de l’école.</p>
@@ -685,41 +693,18 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
 <h2 class="accroche" id="essentiel">Sinon, voici l’essentiel.</h2>
 <div class="score"><div class="score-c"><span class="sqs"><i class="sq" style="--c:var(--fg)"></i></span><p class="val"><span class="n" data-count="4" data-dec="0">4</span><span class="suf">/4</span></p><p class="txt">années major de promotion à l’EMSI, depuis 2022</p></div><div class="score-c"><span class="sqs"><i class="sq" style="--c:var(--ch)"></i><i class="sq" style="--c:var(--lab)"></i><i class="sq" style="--c:var(--be)"></i></span><p class="val"><span class="n" data-count="5" data-dec="0">5</span></p><p class="txt">stages, du chantier au laboratoire puis au bureau d’études</p></div><div class="score-c"><span class="sqs"><i class="sq" style="--c:var(--be)"></i></span><p class="val"><span class="n" data-count="3675" data-dec="0">3 675</span><span class="suf"> m²</span></p><p class="txt">d’usine dont j’ai dimensionné la charpente métallique</p></div><div class="score-c"><span class="sqs"><i class="sq" style="--c:var(--va)"></i></span><p class="val">CIVILIS</p><p class="txt">le club de génie civil de l’EMSI, que j’ai présidé</p></div><div class="score-c"><span class="sqs"><i class="sq" style="--c:var(--va)"></i></span><p class="val">×<span class="n" data-count="3" data-dec="0">3</span></p><p class="txt">participations à The Best Speaker, la compétition d’éloquence de l’EMSI</p></div><div class="score-c"><span class="sqs"><i class="sq" style="--c:var(--fg)"></i></span><p class="val"><span class="n" data-count="4" data-dec="0">4</span></p><p class="txt">langues : arabe, français, anglais et russe</p></div></div>
 </div></section>
-<section class="planche" id="sommaire" data-pl="03" data-code="SOMMAIRE" data-dom="all"><div class="wrap"><header class="pl-head"><span>PL. 03/14</span><span><b>SOMMAIRE</b> </span><span class="pl-dom"><i class="sq" style="--c:var(--fg)"></i>Sommaire</span></header><h2 class="accroche">Du chantier au laboratoire,<br> puis au bureau d’études.</h2><div class="chips" role="group" aria-label="Filtrer par domaine"><button class="chip" type="button" data-dom="all" aria-pressed="true">Tout</button><button class="chip" type="button" data-dom="ch" aria-pressed="false"><i class="sq" style="--c:var(--ch)"></i><b>CH</b>Chantier</button><button class="chip" type="button" data-dom="lab" aria-pressed="false"><i class="sq" style="--c:var(--lab)"></i><b>LAB</b>Laboratoire</button><button class="chip" type="button" data-dom="be" aria-pressed="false"><i class="sq" style="--c:var(--be)"></i><b>BE</b>Bureau d’études</button><button class="chip" type="button" data-dom="pa" aria-pressed="false"><i class="sq" style="--c:var(--pa)"></i><b>PA</b>Projet académique</button><button class="chip" type="button" data-dom="va" aria-pressed="false"><i class="sq" style="--c:var(--va)"></i><b>VA</b>Vie associative</button><button class="chip" type="button" data-dom="pr" aria-pressed="false"><i class="sq" style="--c:var(--pr)"></i><b>PR</b>Présentations</button></div><ol class="cascade"><li><a class="row" href="#bayti-2022" data-dom="ch" data-img="images/p01_gros_oeuvre.jpg"><span class="r-code">CH</span><span class="r-main"><span class="r-titre"><span style="--c:var(--ch)">BAYTI FOR YOU</span></span><span class="r-desc">Stage d’observation sur le chantier d’une villa · 2022</span></span><span class="r-pl">04</span></a></li><li><a class="row" href="#bayti-2023" data-dom="ch" data-img="images/p09_terrassement_reseaux.jpg"><span class="r-code">CH</span><span class="r-main"><span class="r-titre"><span style="--c:var(--ch)">BAYTI FOR YOU</span></span><span class="r-desc">Stage chantier, bâtiment R+3 · 2023</span></span><span class="r-pl">05</span></a></li><li><a class="row" href="#jgh" data-dom="lab" data-img="images/p06_presse_compression.jpg"><span class="r-code">LAB</span><span class="r-main"><span class="r-titre"><span style="--c:var(--lab)">ENTREPRISE JGH</span></span><span class="r-desc">Laboratoire et centrale à béton · 2023</span></span><span class="r-pl">06</span></a></li><li><a class="row" href="#labo-control" data-dom="lab" data-img="images/p13_atelier_forage.jpg"><span class="r-code">LAB</span><span class="r-main"><span class="r-titre"><span style="--c:var(--lab)">LABO CONTROL</span></span><span class="r-desc">Essais géotechniques in situ et en laboratoire · 2024</span></span><span class="r-pl">07</span></a></li><li><a class="row" href="#tanger-med" data-dom="be" data-img="images/p22_matlab_deformee.jpg"><span class="r-code">BE</span><span class="r-main"><span class="r-titre"><span style="--c:var(--be)">TANGER MED ENGINEERING</span></span><span class="r-desc">Bureau d’études, charpente métallique d’une usine · 2026</span></span><span class="r-pl">08</span></a></li><li class="js-only x-hide"><a class="row" href="#banc-essai" data-dom="demo" data-express="off"><span class="r-code">DÉMO</span><span class="r-main"><span class="r-titre"><span class="encre">BANC D’ESSAI</span></span><span class="r-desc">Une halle en acier calculée en direct, par éléments finis</span></span><span class="r-pl">09</span></a></li><li><a class="row" href="#maquette" data-dom="pa" data-img="images/p24_maquette_finale.jpg"><span class="r-code">PA</span><span class="r-main"><span class="r-titre"><span style="--c:var(--pa)">MAQUETTE D’UNE VILLA</span></span><span class="r-desc">Projet académique, maquette faite à la main</span></span><span class="r-pl">10</span></a></li><li><a class="row" href="#civilis" data-dom="va" data-img="images/p27_sortie_chantier.jpg"><span class="r-code">VA</span><span class="r-main"><span class="r-titre"><span style="--c:var(--va)">CIVILIS</span></span><span class="r-desc">Club de génie civil de l’EMSI Tanger, ancien président</span></span><span class="r-pl">11</span></a></li><li><a class="row" href="#best-speaker" data-dom="va" data-img="images/p33_scene_bestspeaker.jpg"><span class="r-code">VA</span><span class="r-main"><span class="r-titre"><span style="--c:var(--va)">THE BEST SPEAKER</span></span><span class="r-desc">Compétition d’éloquence, trois participations</span></span><span class="r-pl">12</span></a></li><li><a class="row" href="#presentations" data-dom="pr" data-img="images/p37_digital_detox.jpg"><span class="r-code">PR</span><span class="r-main"><span class="r-titre"><span style="--c:var(--pr)">PRÉSENTATIONS</span></span><span class="r-desc">Simulation de la Gen Z en communication, Digital Detox en rap en anglais</span></span><span class="r-pl">13</span></a></li></ol><div class="formation x-hide"><h4>En parallèle, la formation</h4><ul><li><span class="f-an">2024 → 2027</span><span class="f-main"><span class="f-titre">CYCLE INGÉNIEUR, GÉNIE CIVIL</span><span class="f-desc">EMSI Tanger, major de promotion en 1<sup>re</sup> et 2<sup>e</sup> année</span></span></li><li><span class="f-an">2022 → 2024</span><span class="f-main"><span class="f-titre">CYCLE PRÉPARATOIRE</span><span class="f-desc">EMSI Tanger, major de promotion</span></span></li></ul></div><div class="apercu" id="apercu" aria-hidden="true"><img alt=""></div></div></section>
-<section class="planche projet" id="bayti-2022" data-pl="04" data-code="CH 01/02" data-dom="ch"><div class="wrap"><header class="pl-head"><span>PL. 04/14</span><span><b>CH</b> 01/02</span><span class="pl-dom"><i class="sq" style="--c:var(--ch)"></i>Chantier</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Août à septembre 2022</p><h2 class="titre"><span style="--c:var(--ch)">BAYTI FOR YOU</span></h2><p class="sous-titre">Stage d’observation sur le chantier d’une villa</p><div class="texte x-hide"><p>Ce stage a été mon premier contact avec un chantier, celui de la construction d’une villa. J’ai délimité la zone d’implantation à l’aide d’un appareil de mise à niveau, puis j’ai suivi les travaux de terrassement et la réalisation du rez-de-chaussée, des poteaux jusqu’au plancher à corps creux.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--ch)"><li>Implantation</li><li>Terrassement</li><li>Poteaux du RDC</li><li>Plancher à corps creux</li></ul></div></div><div class="col-photos"><div class="galerie g-hero2"><figure class=""><button class="photo" type="button" style="--ar:16/9" data-full="images/p01_gros_oeuvre.jpg" data-cap="01 · Gros œuvre et étaiement · BAYTI FOR YOU" aria-label="Agrandir la photo 01, Gros œuvre et étaiement"><img src="images/p01_gros_oeuvre.jpg" alt="Gros œuvre et étaiement" loading="lazy" decoding="async" style="object-position:50% 42%"></button><figcaption><b>01</b>Gros œuvre et étaiement</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p02_poteaux_rdc.jpg" data-cap="02 · Poteaux du rez-de-chaussée et étais · BAYTI FOR YOU" aria-label="Agrandir la photo 02, Poteaux du rez-de-chaussée et étais"><img src="images/p02_poteaux_rdc.jpg" alt="Poteaux du rez-de-chaussée et étais" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>02</b>Poteaux du rez-de-chaussée et étais</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p03_plancher_corps_creux.jpg" data-cap="03 · Plancher à corps creux avant coulage · BAYTI FOR YOU" aria-label="Agrandir la photo 03, Plancher à corps creux avant coulage"><img src="images/p03_plancher_corps_creux.jpg" alt="Plancher à corps creux avant coulage" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>03</b>Plancher à corps creux avant coulage</figcaption></figure></div></div></div></div></section>
-<section class="planche projet" id="bayti-2023" data-pl="05" data-code="CH 02/02" data-dom="ch"><div class="wrap"><header class="pl-head"><span>PL. 05/14</span><span><b>CH</b> 02/02</span><span class="pl-dom"><i class="sq" style="--c:var(--ch)"></i>Chantier</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Juillet à août 2023</p><h2 class="titre"><span style="--c:var(--ch)">BAYTI FOR YOU</span></h2><p class="sous-titre">Stage chantier, bâtiment R+3</p><div class="texte x-hide"><p>De retour chez BAYTI FOR YOU, j’ai suivi les travaux d’un bâtiment R+3, des fondations jusqu’aux éléments porteurs : semelle filante, ferraillage et coffrage des poteaux, puis pose de la dalle. Ce stage m’a montré sur le terrain l’importance d’une exécution soignée pour la qualité de la structure.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--ch)"><li>Semelle filante</li><li>Ferraillage</li><li>Coffrage des poteaux</li><li>Pose de la dalle</li></ul></div></div><div class="col-photos"><div class="galerie g-hero2"><figure class=""><button class="photo" type="button" style="--ar:16/9" data-full="images/p09_terrassement_reseaux.jpg" data-cap="04 · Terrassement et réseaux · BAYTI FOR YOU" aria-label="Agrandir la photo 04, Terrassement et réseaux"><img src="images/p09_terrassement_reseaux.jpg" alt="Terrassement et réseaux" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>04</b>Terrassement et réseaux</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p10_ferraillage_poteau.jpg" data-cap="05 · Ferraillage d’un poteau en fouille · BAYTI FOR YOU" aria-label="Agrandir la photo 05, Ferraillage d’un poteau en fouille"><img src="images/p10_ferraillage_poteau.jpg" alt="Ferraillage d’un poteau en fouille" loading="lazy" decoding="async" style="object-position:50% 42%"></button><figcaption><b>05</b>Ferraillage d’un poteau en fouille</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p11_coffrage_poteaux.jpg" data-cap="06 · Coffrage des poteaux · BAYTI FOR YOU" aria-label="Agrandir la photo 06, Coffrage des poteaux"><img src="images/p11_coffrage_poteaux.jpg" alt="Coffrage des poteaux" loading="lazy" decoding="async" style="object-position:50% 55%"></button><figcaption><b>06</b>Coffrage des poteaux</figcaption></figure></div></div></div></div></section>
-<section class="planche projet" id="jgh" data-pl="06" data-code="LAB 01/02" data-dom="lab"><div class="wrap"><header class="pl-head"><span>PL. 06/14</span><span><b>LAB</b> 01/02</span><span class="pl-dom"><i class="sq" style="--c:var(--lab)"></i>Laboratoire</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Juillet à août 2023</p><h2 class="titre"><span style="--c:var(--lab)">ENTREPRISE JGH</span></h2><p class="sous-titre">Stage en laboratoire, béton et granulats</p><div class="texte x-hide"><p>Ce stage s’est déroulé entre le laboratoire et la centrale à béton de l’entreprise, autour du contrôle de la qualité du béton. J’ai réalisé les essais sur les granulats (équivalent de sable, bleu de méthylène, analyse granulométrique) et sur le béton (affaissement au cône d’Abrams, compression), et j’ai confectionné les éprouvettes. J’ai également appris le mode opératoire de la centrale, du dosage des constituants jusqu’à la fabrication du béton.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--lab)"><li>Équivalent de sable</li><li>Bleu de méthylène</li><li>Granulométrie</li><li>Cône d’Abrams</li><li>Compression</li><li>Centrale à béton</li></ul></div></div><div class="col-photos"><div class="galerie g-3-2"><figure class=""><button class="photo" type="button" style="--ar:3/4" data-full="images/p04_centrale_beton.jpg" data-cap="07 · Centrale à béton · ENTREPRISE JGH" aria-label="Agrandir la photo 07, Centrale à béton"><img src="images/p04_centrale_beton.jpg" alt="Centrale à béton" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>07</b>Centrale à béton</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p05_gachee_beton.jpg" data-cap="08 · Gâchée de béton · ENTREPRISE JGH" aria-label="Agrandir la photo 08, Gâchée de béton"><img src="images/p05_gachee_beton.jpg" alt="Gâchée de béton" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>08</b>Gâchée de béton</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p06_presse_compression.jpg" data-cap="09 · Presse de compression · ENTREPRISE JGH" aria-label="Agrandir la photo 09, Presse de compression"><img src="images/p06_presse_compression.jpg" alt="Presse de compression" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>09</b>Presse de compression</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p07_pilotage_centrale.jpg" data-cap="10 · Pilotage de la centrale à béton · ENTREPRISE JGH" aria-label="Agrandir la photo 10, Pilotage de la centrale à béton"><img src="images/p07_pilotage_centrale.jpg" alt="Pilotage de la centrale à béton" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>10</b>Pilotage de la centrale à béton</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p08_eprouvettes.jpg" data-cap="11 · Éprouvettes de béton moulées · ENTREPRISE JGH" aria-label="Agrandir la photo 11, Éprouvettes de béton moulées"><img src="images/p08_eprouvettes.jpg" alt="Éprouvettes de béton moulées" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>11</b>Éprouvettes de béton moulées</figcaption></figure></div></div></div></div></section>
-<section class="planche projet" id="labo-control" data-pl="07" data-code="LAB 02/02" data-dom="lab"><div class="wrap"><header class="pl-head"><span>PL. 07/14</span><span><b>LAB</b> 02/02</span><span class="pl-dom"><i class="sq" style="--c:var(--lab)"></i>Laboratoire</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Juillet à août 2024</p><h2 class="titre"><span style="--c:var(--lab)">LABO CONTROL</span></h2><p class="sous-titre">Essais géotechniques in situ et en laboratoire</p><div class="texte x-hide"><p>Ce stage s’est inscrit dans une étude géotechnique, menée en deux temps. Sur site, j’ai participé aux reconnaissances du sol : sondage carotté, prélèvement des échantillons et essai pressiométrique Ménard. Au laboratoire, j’ai ensuite réalisé les essais d’identification des sols et de qualité des granulats, selon les normes marocaines.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--lab)"><li>Sondage carotté</li><li>Prélèvements</li><li>Pressiomètre Ménard</li><li>Identification des sols</li><li>Qualité des granulats</li></ul></div><aside class="retenir x-hide" style="--c:var(--lab)"><h4>À retenir</h4><p>L’essai pressiométrique fournit le module E<sub>M</sub>, qui sert à estimer les tassements, et la pression limite p<sub>l</sub>, qui sert à vérifier la portance des fondations.</p></aside></div><div class="col-photos"><h3 class="sous-partie x-hide">Essais in situ</h3><div class="galerie g-tall"><figure class=""><button class="photo" type="button" style="--ar:3/4" data-full="images/p12_pressiometre.jpg" data-cap="12 · Essai pressiométrique Ménard · LABO CONTROL" aria-label="Agrandir la photo 12, Essai pressiométrique Ménard"><img src="images/p12_pressiometre.jpg" alt="Essai pressiométrique Ménard" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>12</b>Essai pressiométrique Ménard</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p13_atelier_forage.jpg" data-cap="13 · Atelier de forage · LABO CONTROL" aria-label="Agrandir la photo 13, Atelier de forage"><img src="images/p13_atelier_forage.jpg" alt="Atelier de forage" loading="lazy" decoding="async" style="object-position:50% 45%"></button><figcaption><b>13</b>Atelier de forage</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p14_caisses_carottes.jpg" data-cap="14 · Caisses de carottes · LABO CONTROL" aria-label="Agrandir la photo 14, Caisses de carottes"><img src="images/p14_caisses_carottes.jpg" alt="Caisses de carottes" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>14</b>Caisses de carottes</figcaption></figure></div></div></div><div class="suite x-hide"><h3 class="sous-partie">Essais de laboratoire</h3><div class="galerie g-3-2"><figure class=""><button class="photo" type="button" style="--ar:3/4" data-full="images/p15_granulometrie.jpg" data-cap="15 · Analyse granulométrique · LABO CONTROL" aria-label="Agrandir la photo 15, Analyse granulométrique"><img src="images/p15_granulometrie.jpg" alt="Analyse granulométrique" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>15</b>Analyse granulométrique</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p16_equivalent_sable.jpg" data-cap="16 · Équivalent de sable · LABO CONTROL" aria-label="Agrandir la photo 16, Équivalent de sable"><img src="images/p16_equivalent_sable.jpg" alt="Équivalent de sable" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>16</b>Équivalent de sable</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p17_bleu_methylene.jpg" data-cap="17 · Bleu de méthylène · LABO CONTROL" aria-label="Agrandir la photo 17, Bleu de méthylène"><img src="images/p17_bleu_methylene.jpg" alt="Bleu de méthylène" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>17</b>Bleu de méthylène</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p18_los_angeles.jpg" data-cap="18 · Essai Los Angeles · LABO CONTROL" aria-label="Agrandir la photo 18, Essai Los Angeles"><img src="images/p18_los_angeles.jpg" alt="Essai Los Angeles" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>18</b>Essai Los Angeles</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p19_masse_volumique.jpg" data-cap="19 · Masse volumique · LABO CONTROL" aria-label="Agrandir la photo 19, Masse volumique"><img src="images/p19_masse_volumique.jpg" alt="Masse volumique" loading="lazy" decoding="async" style="object-position:50% 45%"></button><figcaption><b>19</b>Masse volumique</figcaption></figure></div><div class="normes"><h4>Essais réalisés et normes de référence</h4><div class="table-wrap"><table><thead><tr><th>Essai</th><th>Norme</th></tr></thead><tbody><tr><td>Los Angeles</td><td>NM EN 1097-2</td></tr><tr><td>Micro-Deval</td><td>NM EN 1097-1</td></tr><tr><td>Équivalent de sable</td><td>NM 10.1.732</td></tr><tr><td>Limites d’Atterberg</td><td>NM 13.1.007</td></tr><tr><td>Teneur en eau</td><td>NM 13.1.152</td></tr></tbody></table></div></div></div></div></section>
-<section class="planche projet" id="tanger-med" data-pl="08" data-code="BE 01/01" data-dom="be"><div class="wrap"><header class="pl-head"><span>PL. 08/14</span><span><b>BE</b> 01/01</span><span class="pl-dom"><i class="sq" style="--c:var(--be)"></i>Bureau d’études</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Juillet à août 2026</p><h2 class="titre"><span style="--c:var(--be)">TANGER MED ENGINEERING</span></h2><p class="sous-titre">Stage de perfectionnement, bureau d’études</p><div class="texte x-hide"><p>Au sein du bureau d’études de Tanger Med Engineering, j’ai conçu et dimensionné la charpente métallique d’une usine de 3 675 m² pour JH Precision, à la Cité Mohammed VI Tanger Tech. J’ai évalué les actions (charges d’exploitation selon la NM EN 1991-1-1, vent selon les règles NV65 et séisme selon le RPS 2011), modélisé la structure sous Robot Structural Analysis et vérifié les éléments au CM66 jusqu’aux assemblages. J’ai enfin validé les résultats par un modèle éléments finis que j’ai développé sous MATLAB.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--be)"><li>NM EN 1991-1-1</li><li>NV65 (vent)</li><li>RPS 2011 (séisme)</li><li>Robot Structural Analysis</li><li>CM66</li><li>MATLAB</li></ul></div><h3 class="sous-partie">Chiffres clés du projet</h3><div class="chiffres"><div class="chiffre" style="--c:var(--be)"><i class="sq"></i><p class="val"><span class="n" data-count="3675" data-dec="0">3 675</span><span class="suf"> m²</span></p><p class="txt">usine en acier S275, 74,40 × 49,40 m, faîtage à 10,50 m</p></div><div class="chiffre" style="--c:var(--be)"><i class="sq"></i><p class="val"><span class="n" data-count="498" data-dec="0">498</span></p><p class="txt">barres dans le modèle Robot</p></div><div class="chiffre" style="--c:var(--be)"><i class="sq"></i><p class="val"><span class="n" data-count="0.93" data-dec="2">0,93</span></p><p class="txt">taux de travail maximal après optimisation, contre 1,69 au départ</p></div></div></div><div class="col-photos"><div class="galerie g-2"><figure class=""><button class="photo" type="button" style="--ar:3/4" data-full="images/p20_tme_bureau.jpg" data-cap="20 · Tanger Med Engineering · TANGER MED ENGINEERING" aria-label="Agrandir la photo 20, Tanger Med Engineering"><img src="images/p20_tme_bureau.jpg" alt="Tanger Med Engineering" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>20</b>Tanger Med Engineering</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p21_robot_notes.jpg" data-cap="21 · Modèle Robot et notes de calcul · TANGER MED ENGINEERING" aria-label="Agrandir la photo 21, Modèle Robot et notes de calcul"><img src="images/p21_robot_notes.jpg" alt="Modèle Robot et notes de calcul" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>21</b>Modèle Robot et notes de calcul</figcaption></figure></div></div></div><div class="suite x-hide"><h3 class="sous-partie">Modèle éléments finis et rapport</h3><div class="texte"><p>Pour valider les résultats de Robot, j’ai développé sous MATLAB un modèle éléments finis qui reprend les vérifications au CM66 : flambement, déversement, élancements, second ordre et flèches. J’ai ensuite rédigé le rapport complet du projet sous LaTeX.</p></div><div class="galerie g-1"><figure class=""><button class="photo" type="button" style="--ar:1131/489" data-full="images/p22_matlab_deformee.jpg" data-cap="22 · Modèle MATLAB, déformée sous G + Q à l’ELS et critère de flèche · TANGER MED ENGINEERING" aria-label="Agrandir la photo 22, Modèle MATLAB, déformée sous G + Q à l’ELS et critère de flèche"><img src="images/p22_matlab_deformee.jpg" alt="Modèle MATLAB, déformée sous G + Q à l’ELS et critère de flèche" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>22</b>Modèle MATLAB, déformée sous G + Q à l’ELS et critère de flèche</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:1280/796" data-full="images/p23_rapport_latex.jpg" data-cap="23 · Rapport rédigé sous LaTeX, chapitre sur l’action du vent selon les règles NV65 · TANGER MED ENGINEERING" aria-label="Agrandir la photo 23, Rapport rédigé sous LaTeX, chapitre sur l’action du vent selon les règles NV65"><img src="images/p23_rapport_latex.jpg" alt="Rapport rédigé sous LaTeX, chapitre sur l’action du vent selon les règles NV65" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>23</b>Rapport rédigé sous LaTeX, chapitre sur l’action du vent selon les règles NV65</figcaption></figure></div></div></div></section>
-<section class="planche essai x-hide js-only" id="banc-essai" data-pl="09" data-code="DÉMO 01/01" data-dom="all"><div class="wrap">
-<header class="pl-head"><span>PL. 09/14</span><span><b>DÉMO</b> 01/01</span><span class="pl-dom"><i class="sq" style="--c:var(--fg)"></i>Banc d’essai</span></header>
-<div class="essai-grid">
-<div class="essai-tete">
-<h2 class="accroche">Une halle en acier, calculée en direct.</h2>
-<p class="essai-intro">Choisissez un cas de charge. Votre navigateur assemble la matrice de rigidité de la structure, puis la résout par la méthode des éléments finis. C’est le principe du modèle que j’ai développé sous MATLAB pendant mon stage.</p>
-</div>
-<div class="essai-scene">
-<canvas id="halle" tabindex="0" role="img" aria-label="Vue axonométrique d’une halle en acier dont la déformée change selon le cas de charge choisi. Les flèches gauche et droite du clavier font tourner la vue."></canvas>
-<p class="scene-etiq" id="halle-etiq" aria-live="polite"><b>Montage de l’ossature</b></p>
-<div class="scene-pied"><span class="echelle" aria-hidden="true"><span>0</span><i id="halle-degrade"></i><span id="halle-max">max</span></span>
-<span class="scene-aide"><span class="h-souris">Glissez pour tourner la structure.</span><span class="h-tactile">Glissez le doigt pour tourner la structure.</span></span>
-<button class="tb-btn" type="button" id="halle-rejouer">Rejouer le montage</button></div>
-</div>
-<div class="essai-cmd">
-<h3 class="sous-partie">Cas de charge</h3>
-<div class="cas" role="group" aria-label="Cas de charge"><button class="chip" type="button" data-cas="G" aria-pressed="false"><b>G</b>Poids propre</button><button class="chip" type="button" data-cas="ELS" aria-pressed="false"><b>G + Q</b>Exploitation</button><button class="chip" type="button" data-cas="W1" aria-pressed="false"><b>W1</b>Vent sur long pan</button><button class="chip" type="button" data-cas="W2" aria-pressed="false"><b>W2</b>Vent sur pignon</button></div>
-<h3 class="sous-partie">Modes propres de vibration</h3>
-<div class="cas" role="group" aria-label="Modes propres de vibration"><button class="chip" type="button" data-cas="M1" aria-pressed="false"><b>M1</b>Mode 1</button><button class="chip" type="button" data-cas="M2" aria-pressed="false"><b>M2</b>Mode 2</button><button class="chip" type="button" data-cas="M3" aria-pressed="false"><b>M3</b>Mode 3</button></div>
-<div class="chiffres mesures"><div class="chiffre" style="--c:var(--fg)"><i class="sq"></i><p class="val" id="m1-v">0 mm</p><p class="txt" id="m1-s">structure à vide, avant chargement</p></div><div class="chiffre" style="--c:var(--fg)"><i class="sq"></i><p class="val" id="m2-v">×1</p><p class="txt" id="m2-s">pas encore de déformée à amplifier</p></div><div class="chiffre" style="--c:var(--fg)"><i class="sq"></i><p class="val" id="m3-v">252</p><p class="txt" id="m3-s">inconnues</p></div></div>
-<p class="essai-note">Modèle simplifié à but illustratif. Halle type de 24 × 30 m, 54 nœuds et 115 barres, poteaux encastrés en pied. Profilés HEA 320, IPE 450 et IPE 180. Couverture 0,25 kN/m², exploitation 0,40 kN/m², vent 1,0 kN/m² sur les parois verticales. Calcul linéaire élastique.</p>
-</div>
-</div></div></section>
-<section class="planche projet" id="maquette" data-pl="10" data-code="PA 01/01" data-dom="pa"><div class="wrap"><header class="pl-head"><span>PL. 10/14</span><span><b>PA</b> 01/01</span><span class="pl-dom"><i class="sq" style="--c:var(--pa)"></i>Projet académique</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Projet académique · EMSI Tanger</p><h2 class="titre"><span style="--c:var(--pa)">MAQUETTE D’UNE VILLA</span></h2><p class="sous-titre">Maquette faite à la main</p><div class="texte x-hide"><p>Projet de conception d’une villa, de l’organisation des espaces jusqu’à la maquette finale avec ses aménagements extérieurs, entièrement réalisée à la main.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--pa)"><li>Organisation des espaces</li><li>Façades et ouvertures</li><li>Aménagements extérieurs</li><li>Maquette à la main</li></ul></div></div><div class="col-photos"><div class="galerie g-hero2"><figure class=""><button class="photo" type="button" style="--ar:16/9" data-full="images/p24_maquette_finale.jpg" data-cap="24 · Maquette finale et aménagements extérieurs · MAQUETTE D’UNE VILLA" aria-label="Agrandir la photo 24, Maquette finale et aménagements extérieurs"><img src="images/p24_maquette_finale.jpg" alt="Maquette finale et aménagements extérieurs" loading="lazy" decoding="async" style="object-position:50% 55%"></button><figcaption><b>24</b>Maquette finale et aménagements extérieurs</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p25_organisation_espaces.jpg" data-cap="25 · Organisation des espaces · MAQUETTE D’UNE VILLA" aria-label="Agrandir la photo 25, Organisation des espaces"><img src="images/p25_organisation_espaces.jpg" alt="Organisation des espaces" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>25</b>Organisation des espaces</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p26_facade.jpg" data-cap="26 · Façade et ouvertures · MAQUETTE D’UNE VILLA" aria-label="Agrandir la photo 26, Façade et ouvertures"><img src="images/p26_facade.jpg" alt="Façade et ouvertures" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>26</b>Façade et ouvertures</figcaption></figure></div></div></div></div></section>
-<section class="planche projet" id="civilis" data-pl="11" data-code="VA 01/02" data-dom="va"><div class="wrap"><header class="pl-head"><span>PL. 11/14</span><span><b>VA</b> 01/02</span><span class="pl-dom"><i class="sq" style="--c:var(--va)"></i>Vie associative</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Club de génie civil · EMSI Tanger</p><h2 class="titre"><span style="--c:var(--va)">CIVILIS</span></h2><p class="sous-titre">Ancien président</p><div class="texte x-hide"><p>J’ai présidé CIVILIS, le Civil Engineering Students Club de l’EMSI Tanger. Avec l’équipe, nous avons rapproché les étudiants du terrain et du métier d’ingénieur en organisant des sorties pédagogiques, des séminaires, des formations, des podcasts et des compétitions.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--va)"><li>Sorties pédagogiques</li><li>Séminaires</li><li>Formations</li><li>Podcasts</li><li>Compétitions</li></ul></div></div><div class="col-photos"><div class="galerie g-3x2"><figure class=""><button class="photo" type="button" style="--ar:3/4" data-full="images/p27_sortie_chantier.jpg" data-cap="27 · Sortie pédagogique sur chantier · CIVILIS" aria-label="Agrandir la photo 27, Sortie pédagogique sur chantier"><img src="images/p27_sortie_chantier.jpg" alt="Sortie pédagogique sur chantier" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>27</b>Sortie pédagogique sur chantier</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p28_echange_etudiants.jpg" data-cap="28 · Échange avec les étudiants · CIVILIS" aria-label="Agrandir la photo 28, Échange avec les étudiants"><img src="images/p28_echange_etudiants.jpg" alt="Échange avec les étudiants" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>28</b>Échange avec les étudiants</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p29_scene_civilis.jpg" data-cap="29 · Prise de parole sur scène · CIVILIS" aria-label="Agrandir la photo 29, Prise de parole sur scène"><img src="images/p29_scene_civilis.jpg" alt="Prise de parole sur scène" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>29</b>Prise de parole sur scène</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p30_defi_equipe.jpg" data-cap="30 · Défi en équipe · CIVILIS" aria-label="Agrandir la photo 30, Défi en équipe"><img src="images/p30_defi_equipe.jpg" alt="Défi en équipe" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>30</b>Défi en équipe</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p31_poster.jpg" data-cap="31 · Présentation de projet sur poster · CIVILIS" aria-label="Agrandir la photo 31, Présentation de projet sur poster"><img src="images/p31_poster.jpg" alt="Présentation de projet sur poster" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>31</b>Présentation de projet sur poster</figcaption></figure><figure class="x-hide"><div class="logo"><img src="images/logo_civilis.png" alt="Logo du club CIVILIS" loading="lazy" decoding="async"></div><figcaption>Logo du club CIVILIS</figcaption></figure></div></div></div></div></section>
-<section class="planche projet" id="best-speaker" data-pl="12" data-code="VA 02/02" data-dom="va"><div class="wrap"><header class="pl-head"><span>PL. 12/14</span><span><b>VA</b> 02/02</span><span class="pl-dom"><i class="sq" style="--c:var(--va)"></i>Vie associative</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Clubs de l’EMSI · Trois participations</p><h2 class="titre"><span style="--c:var(--va)">THE BEST SPEAKER</span></h2><p class="sous-titre">Compétition d’éloquence</p><div class="texte x-hide"><p>J’ai participé trois fois à The Best Speaker, la compétition d’éloquence organisée par les clubs de l’EMSI. Convaincre un public en quelques minutes m’a appris à structurer un message et à gérer le stress, ce qui me sert aujourd’hui pour présenter une étude ou une note de calcul.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--va)"><li>Structurer un message</li><li>Gérer le stress</li><li>Convaincre un public</li></ul></div></div><div class="col-photos"><div class="galerie g-2x2"><figure class=""><button class="photo" type="button" style="--ar:4/3" data-full="images/p32_pupitre.jpg" data-cap="32 · Discours au pupitre · THE BEST SPEAKER" aria-label="Agrandir la photo 32, Discours au pupitre"><img src="images/p32_pupitre.jpg" alt="Discours au pupitre" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>32</b>Discours au pupitre</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p33_scene_bestspeaker.jpg" data-cap="33 · Prise de parole sur scène · THE BEST SPEAKER" aria-label="Agrandir la photo 33, Prise de parole sur scène"><img src="images/p33_scene_bestspeaker.jpg" alt="Prise de parole sur scène" loading="lazy" decoding="async" style="object-position:50% 45%"></button><figcaption><b>33</b>Prise de parole sur scène</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p34_recompense.jpg" data-cap="34 · Remise de récompense sur scène · THE BEST SPEAKER" aria-label="Agrandir la photo 34, Remise de récompense sur scène"><img src="images/p34_recompense.jpg" alt="Remise de récompense sur scène" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>34</b>Remise de récompense sur scène</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p35_certificat_trophee.jpg" data-cap="35 · Certificat et trophée · THE BEST SPEAKER" aria-label="Agrandir la photo 35, Certificat et trophée"><img src="images/p35_certificat_trophee.jpg" alt="Certificat et trophée" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>35</b>Certificat et trophée</figcaption></figure></div></div></div></div></section>
-<section class="planche projet" id="presentations" data-pl="13" data-code="PR 01/01" data-dom="pr"><div class="wrap"><header class="pl-head"><span>PL. 13/14</span><span><b>PR</b> 01/01</span><span class="pl-dom"><i class="sq" style="--c:var(--pr)"></i>Présentations</span></header><p class="kicker">Deux présentations qui m’ont marqué · EMSI Tanger</p><h2 class="titre"><span style="--c:var(--pr)">PRÉSENTATIONS</span></h2><p class="sous-titre">En communication professionnelle et en anglais</p><div class="blocs"><div class="bloc"><div class="bloc-photo"><figure class=""><button class="photo" type="button" style="--ar:78/84" data-full="images/p36_genz_simulation.jpg" data-cap="36 · Simulation jouée devant la classe · LA GEN Z AU MAROC" aria-label="Agrandir la photo 36, Simulation jouée devant la classe"><img src="images/p36_genz_simulation.jpg" alt="Simulation jouée devant la classe" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>36</b>Simulation jouée devant la classe</figcaption></figure></div><div class="bloc-texte"><p class="kicker">Communication professionnelle</p><h3 class="titre petit"><span style="--c:var(--pr)">LA GEN Z AU MAROC</span></h3><p class="sous-titre">Simulation des manifestations, jouée en classe</p><div class="texte x-hide"><p>Pour cette présentation, j’ai simulé les manifestations de la Gen Z au Maroc avec des camarades de classe. Nous avons joué la scène en direct, pancarte à la main et chacun dans un rôle, sous les applaudissements de la salle.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--pr)"><li>Mise en scène</li><li>Travail en équipe</li><li>Sujet d’actualité</li></ul></div></div></div><div class="bloc inverse"><div class="bloc-photo"><figure class=""><button class="photo" type="button" style="--ar:4/3" data-full="images/p37_digital_detox.jpg" data-cap="37 · Avec mes camarades, le jour de la présentation · DIGITAL DETOX" aria-label="Agrandir la photo 37, Avec mes camarades, le jour de la présentation"><img src="images/p37_digital_detox.jpg" alt="Avec mes camarades, le jour de la présentation" loading="lazy" decoding="async" style="object-position:55% 60%"></button><figcaption><b>37</b>Avec mes camarades, le jour de la présentation</figcaption></figure></div><div class="bloc-texte"><p class="kicker">Anglais</p><h3 class="titre petit"><span style="--c:var(--pr)">DIGITAL DETOX</span></h3><p class="sous-titre">Exposé en anglais et performance de rap</p><div class="texte x-hide"><p>En anglais, j’ai traité le sujet du Digital Detox en mêlant la présentation à une performance de rap. Le rap m’a permis d’aborder le sujet avec ironie, tout en restant objectif sur le fond.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--pr)"><li>Présentation en anglais</li><li>Performance de rap</li><li>Ironie et objectivité</li></ul></div></div></div></div></div></section>
-<section class="planche" id="contact" data-pl="14" data-code="CONTACT" data-dom="all"><div class="wrap">
-<header class="pl-head"><span>PL. 14/14</span><span><b>CONTACT</b> </span><span class="pl-dom"><i class="sq" style="--c:var(--fg)"></i>Contact</span></header>
+<section class="planche" id="sommaire" data-pl="03" data-code="SOMMAIRE" data-dom="all"><div class="wrap"><header class="pl-head"><span>PL. 03/13</span><span><b>SOMMAIRE</b> </span><span class="pl-dom"><i class="sq" style="--c:var(--fg)"></i>Sommaire</span></header><h2 class="accroche">Du chantier au laboratoire,<br> puis au bureau d’études.</h2><div class="chips" role="group" aria-label="Filtrer par domaine"><button class="chip" type="button" data-dom="all" aria-pressed="true">Tout</button><button class="chip" type="button" data-dom="ch" aria-pressed="false"><i class="sq" style="--c:var(--ch)"></i><b>CH</b>Chantier</button><button class="chip" type="button" data-dom="lab" aria-pressed="false"><i class="sq" style="--c:var(--lab)"></i><b>LAB</b>Laboratoire</button><button class="chip" type="button" data-dom="be" aria-pressed="false"><i class="sq" style="--c:var(--be)"></i><b>BE</b>Bureau d’études</button><button class="chip" type="button" data-dom="pa" aria-pressed="false"><i class="sq" style="--c:var(--pa)"></i><b>PA</b>Projet académique</button><button class="chip" type="button" data-dom="va" aria-pressed="false"><i class="sq" style="--c:var(--va)"></i><b>VA</b>Vie associative</button><button class="chip" type="button" data-dom="pr" aria-pressed="false"><i class="sq" style="--c:var(--pr)"></i><b>PR</b>Présentations</button></div><ol class="cascade"><li><a class="row" href="#bayti-2022" data-dom="ch" data-img="images/p01_gros_oeuvre.jpg"><span class="r-code">CH</span><span class="r-main"><span class="r-titre"><span style="--c:var(--ch)">BAYTI FOR YOU</span></span><span class="r-desc">Stage d’observation sur le chantier d’une villa · 2022</span></span><span class="r-pl">04</span></a></li><li><a class="row" href="#bayti-2023" data-dom="ch" data-img="images/p09_terrassement_reseaux.jpg"><span class="r-code">CH</span><span class="r-main"><span class="r-titre"><span style="--c:var(--ch)">BAYTI FOR YOU</span></span><span class="r-desc">Stage chantier, bâtiment R+3 · 2023</span></span><span class="r-pl">05</span></a></li><li><a class="row" href="#jgh" data-dom="lab" data-img="images/p06_presse_compression.jpg"><span class="r-code">LAB</span><span class="r-main"><span class="r-titre"><span style="--c:var(--lab)">ENTREPRISE JGH</span></span><span class="r-desc">Laboratoire et centrale à béton · 2023</span></span><span class="r-pl">06</span></a></li><li><a class="row" href="#labo-control" data-dom="lab" data-img="images/p13_atelier_forage.jpg"><span class="r-code">LAB</span><span class="r-main"><span class="r-titre"><span style="--c:var(--lab)">LABO CONTROL</span></span><span class="r-desc">Essais géotechniques in situ et en laboratoire · 2024</span></span><span class="r-pl">07</span></a></li><li><a class="row" href="#tanger-med" data-dom="be" data-img="images/p22_matlab_deformee.jpg"><span class="r-code">BE</span><span class="r-main"><span class="r-titre"><span style="--c:var(--be)">TANGER MED ENGINEERING</span></span><span class="r-desc">Bureau d’études, charpente métallique d’une usine · 2026</span></span><span class="r-pl">08</span></a></li><li><a class="row" href="#maquette" data-dom="pa" data-img="images/p24_maquette_finale.jpg"><span class="r-code">PA</span><span class="r-main"><span class="r-titre"><span style="--c:var(--pa)">MAQUETTE D’UNE VILLA</span></span><span class="r-desc">Projet académique, maquette faite à la main</span></span><span class="r-pl">09</span></a></li><li><a class="row" href="#civilis" data-dom="va" data-img="images/p27_sortie_chantier.jpg"><span class="r-code">VA</span><span class="r-main"><span class="r-titre"><span style="--c:var(--va)">CIVILIS</span></span><span class="r-desc">Club de génie civil de l’EMSI Tanger, ancien président</span></span><span class="r-pl">10</span></a></li><li><a class="row" href="#best-speaker" data-dom="va" data-img="images/p33_scene_bestspeaker.jpg"><span class="r-code">VA</span><span class="r-main"><span class="r-titre"><span style="--c:var(--va)">THE BEST SPEAKER</span></span><span class="r-desc">Compétition d’éloquence, trois participations</span></span><span class="r-pl">11</span></a></li><li><a class="row" href="#presentations" data-dom="pr" data-img="images/p37_digital_detox.jpg"><span class="r-code">PR</span><span class="r-main"><span class="r-titre"><span style="--c:var(--pr)">PRÉSENTATIONS</span></span><span class="r-desc">Simulation de la Gen Z en communication, Digital Detox en rap en anglais</span></span><span class="r-pl">12</span></a></li></ol><div class="formation x-hide"><h4>En parallèle, la formation</h4><ul><li><span class="f-an">2024 → 2027</span><span class="f-main"><span class="f-titre">CYCLE INGÉNIEUR, GÉNIE CIVIL</span><span class="f-desc">EMSI Tanger, major de promotion en 1<sup>re</sup> et 2<sup>e</sup> année</span></span></li><li><span class="f-an">2022 → 2024</span><span class="f-main"><span class="f-titre">CYCLE PRÉPARATOIRE</span><span class="f-desc">EMSI Tanger, major de promotion</span></span></li></ul></div><div class="apercu" id="apercu" aria-hidden="true"><img alt=""></div></div></section>
+<section class="planche projet" id="bayti-2022" data-pl="04" data-code="CH 01/02" data-dom="ch"><div class="wrap"><header class="pl-head"><span>PL. 04/13</span><span><b>CH</b> 01/02</span><span class="pl-dom"><i class="sq" style="--c:var(--ch)"></i>Chantier</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Août à septembre 2022</p><h2 class="titre"><span style="--c:var(--ch)">BAYTI FOR YOU</span></h2><p class="sous-titre">Stage d’observation sur le chantier d’une villa</p><div class="texte x-hide"><p>Ce stage a été mon premier contact avec un chantier, celui de la construction d’une villa. J’ai délimité la zone d’implantation à l’aide d’un appareil de mise à niveau, puis j’ai suivi les travaux de terrassement et la réalisation du rez-de-chaussée, des poteaux jusqu’au plancher à corps creux.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--ch)"><li>Implantation</li><li>Terrassement</li><li>Poteaux du RDC</li><li>Plancher à corps creux</li></ul></div></div><div class="col-photos"><div class="galerie g-hero2"><figure class=""><button class="photo" type="button" style="--ar:16/9" data-full="images/p01_gros_oeuvre.jpg" data-cap="01 · Gros œuvre et étaiement · BAYTI FOR YOU" aria-label="Agrandir la photo 01, Gros œuvre et étaiement"><img src="images/p01_gros_oeuvre.jpg" alt="Gros œuvre et étaiement" loading="lazy" decoding="async" style="object-position:50% 42%"></button><figcaption><b>01</b>Gros œuvre et étaiement</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p02_poteaux_rdc.jpg" data-cap="02 · Poteaux du rez-de-chaussée et étais · BAYTI FOR YOU" aria-label="Agrandir la photo 02, Poteaux du rez-de-chaussée et étais"><img src="images/p02_poteaux_rdc.jpg" alt="Poteaux du rez-de-chaussée et étais" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>02</b>Poteaux du rez-de-chaussée et étais</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p03_plancher_corps_creux.jpg" data-cap="03 · Plancher à corps creux avant coulage · BAYTI FOR YOU" aria-label="Agrandir la photo 03, Plancher à corps creux avant coulage"><img src="images/p03_plancher_corps_creux.jpg" alt="Plancher à corps creux avant coulage" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>03</b>Plancher à corps creux avant coulage</figcaption></figure></div></div></div></div></section>
+<section class="planche projet" id="bayti-2023" data-pl="05" data-code="CH 02/02" data-dom="ch"><div class="wrap"><header class="pl-head"><span>PL. 05/13</span><span><b>CH</b> 02/02</span><span class="pl-dom"><i class="sq" style="--c:var(--ch)"></i>Chantier</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Juillet à août 2023</p><h2 class="titre"><span style="--c:var(--ch)">BAYTI FOR YOU</span></h2><p class="sous-titre">Stage chantier, bâtiment R+3</p><div class="texte x-hide"><p>De retour chez BAYTI FOR YOU, j’ai suivi les travaux d’un bâtiment R+3, des fondations jusqu’aux éléments porteurs : semelle filante, ferraillage et coffrage des poteaux, puis pose de la dalle. Ce stage m’a montré sur le terrain l’importance d’une exécution soignée pour la qualité de la structure.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--ch)"><li>Semelle filante</li><li>Ferraillage</li><li>Coffrage des poteaux</li><li>Pose de la dalle</li></ul></div></div><div class="col-photos"><div class="galerie g-hero2"><figure class=""><button class="photo" type="button" style="--ar:16/9" data-full="images/p09_terrassement_reseaux.jpg" data-cap="04 · Terrassement et réseaux · BAYTI FOR YOU" aria-label="Agrandir la photo 04, Terrassement et réseaux"><img src="images/p09_terrassement_reseaux.jpg" alt="Terrassement et réseaux" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>04</b>Terrassement et réseaux</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p10_ferraillage_poteau.jpg" data-cap="05 · Ferraillage d’un poteau en fouille · BAYTI FOR YOU" aria-label="Agrandir la photo 05, Ferraillage d’un poteau en fouille"><img src="images/p10_ferraillage_poteau.jpg" alt="Ferraillage d’un poteau en fouille" loading="lazy" decoding="async" style="object-position:50% 42%"></button><figcaption><b>05</b>Ferraillage d’un poteau en fouille</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p11_coffrage_poteaux.jpg" data-cap="06 · Coffrage des poteaux · BAYTI FOR YOU" aria-label="Agrandir la photo 06, Coffrage des poteaux"><img src="images/p11_coffrage_poteaux.jpg" alt="Coffrage des poteaux" loading="lazy" decoding="async" style="object-position:50% 55%"></button><figcaption><b>06</b>Coffrage des poteaux</figcaption></figure></div></div></div></div></section>
+<section class="planche projet" id="jgh" data-pl="06" data-code="LAB 01/02" data-dom="lab"><div class="wrap"><header class="pl-head"><span>PL. 06/13</span><span><b>LAB</b> 01/02</span><span class="pl-dom"><i class="sq" style="--c:var(--lab)"></i>Laboratoire</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Juillet à août 2023</p><h2 class="titre"><span style="--c:var(--lab)">ENTREPRISE JGH</span></h2><p class="sous-titre">Stage en laboratoire, béton et granulats</p><div class="texte x-hide"><p>Ce stage s’est déroulé entre le laboratoire et la centrale à béton de l’entreprise, autour du contrôle de la qualité du béton. J’ai réalisé les essais sur les granulats (équivalent de sable, bleu de méthylène, analyse granulométrique) et sur le béton (affaissement au cône d’Abrams, compression), et j’ai confectionné les éprouvettes. J’ai également appris le mode opératoire de la centrale, du dosage des constituants jusqu’à la fabrication du béton.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--lab)"><li>Équivalent de sable</li><li>Bleu de méthylène</li><li>Granulométrie</li><li>Cône d’Abrams</li><li>Compression</li><li>Centrale à béton</li></ul></div></div><div class="col-photos"><div class="galerie g-3-2"><figure class=""><button class="photo" type="button" style="--ar:3/4" data-full="images/p04_centrale_beton.jpg" data-cap="07 · Centrale à béton · ENTREPRISE JGH" aria-label="Agrandir la photo 07, Centrale à béton"><img src="images/p04_centrale_beton.jpg" alt="Centrale à béton" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>07</b>Centrale à béton</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p05_gachee_beton.jpg" data-cap="08 · Gâchée de béton · ENTREPRISE JGH" aria-label="Agrandir la photo 08, Gâchée de béton"><img src="images/p05_gachee_beton.jpg" alt="Gâchée de béton" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>08</b>Gâchée de béton</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p06_presse_compression.jpg" data-cap="09 · Presse de compression · ENTREPRISE JGH" aria-label="Agrandir la photo 09, Presse de compression"><img src="images/p06_presse_compression.jpg" alt="Presse de compression" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>09</b>Presse de compression</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p07_pilotage_centrale.jpg" data-cap="10 · Pilotage de la centrale à béton · ENTREPRISE JGH" aria-label="Agrandir la photo 10, Pilotage de la centrale à béton"><img src="images/p07_pilotage_centrale.jpg" alt="Pilotage de la centrale à béton" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>10</b>Pilotage de la centrale à béton</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p08_eprouvettes.jpg" data-cap="11 · Éprouvettes de béton moulées · ENTREPRISE JGH" aria-label="Agrandir la photo 11, Éprouvettes de béton moulées"><img src="images/p08_eprouvettes.jpg" alt="Éprouvettes de béton moulées" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>11</b>Éprouvettes de béton moulées</figcaption></figure></div></div></div></div></section>
+<section class="planche projet" id="labo-control" data-pl="07" data-code="LAB 02/02" data-dom="lab"><div class="wrap"><header class="pl-head"><span>PL. 07/13</span><span><b>LAB</b> 02/02</span><span class="pl-dom"><i class="sq" style="--c:var(--lab)"></i>Laboratoire</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Juillet à août 2024</p><h2 class="titre"><span style="--c:var(--lab)">LABO CONTROL</span></h2><p class="sous-titre">Essais géotechniques in situ et en laboratoire</p><div class="texte x-hide"><p>Ce stage s’est inscrit dans une étude géotechnique, menée en deux temps. Sur site, j’ai participé aux reconnaissances du sol : sondage carotté, prélèvement des échantillons et essai pressiométrique Ménard. Au laboratoire, j’ai ensuite réalisé les essais d’identification des sols et de qualité des granulats, selon les normes marocaines.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--lab)"><li>Sondage carotté</li><li>Prélèvements</li><li>Pressiomètre Ménard</li><li>Identification des sols</li><li>Qualité des granulats</li></ul></div><aside class="retenir x-hide" style="--c:var(--lab)"><h4>À retenir</h4><p>L’essai pressiométrique fournit le module E<sub>M</sub>, qui sert à estimer les tassements, et la pression limite p<sub>l</sub>, qui sert à vérifier la portance des fondations.</p></aside></div><div class="col-photos"><h3 class="sous-partie x-hide">Essais in situ</h3><div class="galerie g-tall"><figure class=""><button class="photo" type="button" style="--ar:3/4" data-full="images/p12_pressiometre.jpg" data-cap="12 · Essai pressiométrique Ménard · LABO CONTROL" aria-label="Agrandir la photo 12, Essai pressiométrique Ménard"><img src="images/p12_pressiometre.jpg" alt="Essai pressiométrique Ménard" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>12</b>Essai pressiométrique Ménard</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p13_atelier_forage.jpg" data-cap="13 · Atelier de forage · LABO CONTROL" aria-label="Agrandir la photo 13, Atelier de forage"><img src="images/p13_atelier_forage.jpg" alt="Atelier de forage" loading="lazy" decoding="async" style="object-position:50% 45%"></button><figcaption><b>13</b>Atelier de forage</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p14_caisses_carottes.jpg" data-cap="14 · Caisses de carottes · LABO CONTROL" aria-label="Agrandir la photo 14, Caisses de carottes"><img src="images/p14_caisses_carottes.jpg" alt="Caisses de carottes" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>14</b>Caisses de carottes</figcaption></figure></div></div></div><div class="suite x-hide"><h3 class="sous-partie">Essais de laboratoire</h3><div class="galerie g-3-2"><figure class=""><button class="photo" type="button" style="--ar:3/4" data-full="images/p15_granulometrie.jpg" data-cap="15 · Analyse granulométrique · LABO CONTROL" aria-label="Agrandir la photo 15, Analyse granulométrique"><img src="images/p15_granulometrie.jpg" alt="Analyse granulométrique" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>15</b>Analyse granulométrique</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p16_equivalent_sable.jpg" data-cap="16 · Équivalent de sable · LABO CONTROL" aria-label="Agrandir la photo 16, Équivalent de sable"><img src="images/p16_equivalent_sable.jpg" alt="Équivalent de sable" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>16</b>Équivalent de sable</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p17_bleu_methylene.jpg" data-cap="17 · Bleu de méthylène · LABO CONTROL" aria-label="Agrandir la photo 17, Bleu de méthylène"><img src="images/p17_bleu_methylene.jpg" alt="Bleu de méthylène" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>17</b>Bleu de méthylène</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p18_los_angeles.jpg" data-cap="18 · Essai Los Angeles · LABO CONTROL" aria-label="Agrandir la photo 18, Essai Los Angeles"><img src="images/p18_los_angeles.jpg" alt="Essai Los Angeles" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>18</b>Essai Los Angeles</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p19_masse_volumique.jpg" data-cap="19 · Masse volumique · LABO CONTROL" aria-label="Agrandir la photo 19, Masse volumique"><img src="images/p19_masse_volumique.jpg" alt="Masse volumique" loading="lazy" decoding="async" style="object-position:50% 45%"></button><figcaption><b>19</b>Masse volumique</figcaption></figure></div><div class="normes"><h4>Essais réalisés et normes de référence</h4><div class="table-wrap"><table><thead><tr><th>Essai</th><th>Norme</th></tr></thead><tbody><tr><td>Los Angeles</td><td>NM EN 1097-2</td></tr><tr><td>Micro-Deval</td><td>NM EN 1097-1</td></tr><tr><td>Équivalent de sable</td><td>NM 10.1.732</td></tr><tr><td>Limites d’Atterberg</td><td>NM 13.1.007</td></tr><tr><td>Teneur en eau</td><td>NM 13.1.152</td></tr></tbody></table></div></div></div></div></section>
+<section class="planche projet" id="tanger-med" data-pl="08" data-code="BE 01/01" data-dom="be"><div class="wrap"><header class="pl-head"><span>PL. 08/13</span><span><b>BE</b> 01/01</span><span class="pl-dom"><i class="sq" style="--c:var(--be)"></i>Bureau d’études</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Juillet à août 2026</p><h2 class="titre"><span style="--c:var(--be)">TANGER MED ENGINEERING</span></h2><p class="sous-titre">Stage de perfectionnement, bureau d’études</p><div class="texte x-hide"><p>Au sein du bureau d’études de Tanger Med Engineering, j’ai conçu et dimensionné la charpente métallique d’une usine de 3 675 m² pour JH Precision, à la Cité Mohammed VI Tanger Tech. J’ai évalué les actions (charges d’exploitation selon la NM EN 1991-1-1, vent selon les règles NV65 et séisme selon le RPS 2011), modélisé la structure sous Robot Structural Analysis et vérifié les éléments au CM66 jusqu’aux assemblages. J’ai enfin validé les résultats par un modèle éléments finis que j’ai développé sous MATLAB.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--be)"><li>NM EN 1991-1-1</li><li>NV65 (vent)</li><li>RPS 2011 (séisme)</li><li>Robot Structural Analysis</li><li>CM66</li><li>MATLAB</li></ul></div><h3 class="sous-partie">Chiffres clés du projet</h3><div class="chiffres"><div class="chiffre" style="--c:var(--be)"><i class="sq"></i><p class="val"><span class="n" data-count="3675" data-dec="0">3 675</span><span class="suf"> m²</span></p><p class="txt">usine en acier S275, 74,40 × 49,40 m, faîtage à 10,50 m</p></div><div class="chiffre" style="--c:var(--be)"><i class="sq"></i><p class="val"><span class="n" data-count="498" data-dec="0">498</span></p><p class="txt">barres dans le modèle Robot</p></div><div class="chiffre" style="--c:var(--be)"><i class="sq"></i><p class="val"><span class="n" data-count="0.93" data-dec="2">0,93</span></p><p class="txt">taux de travail maximal après optimisation, contre 1,69 au départ</p></div></div></div><div class="col-photos"><div class="galerie g-2"><figure class=""><button class="photo" type="button" style="--ar:3/4" data-full="images/p20_tme_bureau.jpg" data-cap="20 · Tanger Med Engineering · TANGER MED ENGINEERING" aria-label="Agrandir la photo 20, Tanger Med Engineering"><img src="images/p20_tme_bureau.jpg" alt="Tanger Med Engineering" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>20</b>Tanger Med Engineering</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p21_robot_notes.jpg" data-cap="21 · Modèle Robot et notes de calcul · TANGER MED ENGINEERING" aria-label="Agrandir la photo 21, Modèle Robot et notes de calcul"><img src="images/p21_robot_notes.jpg" alt="Modèle Robot et notes de calcul" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>21</b>Modèle Robot et notes de calcul</figcaption></figure></div></div></div><div class="suite x-hide"><h3 class="sous-partie">Modèle éléments finis et rapport</h3><div class="texte"><p>Pour valider les résultats de Robot, j’ai développé sous MATLAB un modèle éléments finis qui reprend les vérifications au CM66 : flambement, déversement, élancements, second ordre et flèches. J’ai ensuite rédigé le rapport complet du projet sous LaTeX.</p></div><div class="galerie g-1"><figure class=""><button class="photo" type="button" style="--ar:1131/489" data-full="images/p22_matlab_deformee.jpg" data-cap="22 · Modèle MATLAB, déformée sous G + Q à l’ELS et critère de flèche · TANGER MED ENGINEERING" aria-label="Agrandir la photo 22, Modèle MATLAB, déformée sous G + Q à l’ELS et critère de flèche"><img src="images/p22_matlab_deformee.jpg" alt="Modèle MATLAB, déformée sous G + Q à l’ELS et critère de flèche" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>22</b>Modèle MATLAB, déformée sous G + Q à l’ELS et critère de flèche</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:1280/796" data-full="images/p23_rapport_latex.jpg" data-cap="23 · Rapport rédigé sous LaTeX, chapitre sur l’action du vent selon les règles NV65 · TANGER MED ENGINEERING" aria-label="Agrandir la photo 23, Rapport rédigé sous LaTeX, chapitre sur l’action du vent selon les règles NV65"><img src="images/p23_rapport_latex.jpg" alt="Rapport rédigé sous LaTeX, chapitre sur l’action du vent selon les règles NV65" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>23</b>Rapport rédigé sous LaTeX, chapitre sur l’action du vent selon les règles NV65</figcaption></figure></div></div></div></section>
+<section class="planche projet" id="maquette" data-pl="09" data-code="PA 01/01" data-dom="pa"><div class="wrap"><header class="pl-head"><span>PL. 09/13</span><span><b>PA</b> 01/01</span><span class="pl-dom"><i class="sq" style="--c:var(--pa)"></i>Projet académique</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Projet académique · EMSI Tanger</p><h2 class="titre"><span style="--c:var(--pa)">MAQUETTE D’UNE VILLA</span></h2><p class="sous-titre">Maquette faite à la main</p><div class="texte x-hide"><p>Projet de conception d’une villa, de l’organisation des espaces jusqu’à la maquette finale avec ses aménagements extérieurs, entièrement réalisée à la main.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--pa)"><li>Organisation des espaces</li><li>Façades et ouvertures</li><li>Aménagements extérieurs</li><li>Maquette à la main</li></ul></div></div><div class="col-photos"><div class="galerie g-hero2"><figure class=""><button class="photo" type="button" style="--ar:16/9" data-full="images/p24_maquette_finale.jpg" data-cap="24 · Maquette finale et aménagements extérieurs · MAQUETTE D’UNE VILLA" aria-label="Agrandir la photo 24, Maquette finale et aménagements extérieurs"><img src="images/p24_maquette_finale.jpg" alt="Maquette finale et aménagements extérieurs" loading="lazy" decoding="async" style="object-position:50% 55%"></button><figcaption><b>24</b>Maquette finale et aménagements extérieurs</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p25_organisation_espaces.jpg" data-cap="25 · Organisation des espaces · MAQUETTE D’UNE VILLA" aria-label="Agrandir la photo 25, Organisation des espaces"><img src="images/p25_organisation_espaces.jpg" alt="Organisation des espaces" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>25</b>Organisation des espaces</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p26_facade.jpg" data-cap="26 · Façade et ouvertures · MAQUETTE D’UNE VILLA" aria-label="Agrandir la photo 26, Façade et ouvertures"><img src="images/p26_facade.jpg" alt="Façade et ouvertures" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>26</b>Façade et ouvertures</figcaption></figure></div></div></div></div></section>
+<section class="planche projet" id="civilis" data-pl="10" data-code="VA 01/02" data-dom="va"><div class="wrap"><header class="pl-head"><span>PL. 10/13</span><span><b>VA</b> 01/02</span><span class="pl-dom"><i class="sq" style="--c:var(--va)"></i>Vie associative</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Club de génie civil · EMSI Tanger</p><h2 class="titre"><span style="--c:var(--va)">CIVILIS</span></h2><p class="sous-titre">Ancien président</p><div class="texte x-hide"><p>J’ai présidé CIVILIS, le Civil Engineering Students Club de l’EMSI Tanger. Avec l’équipe, nous avons rapproché les étudiants du terrain et du métier d’ingénieur en organisant des sorties pédagogiques, des séminaires, des formations, des podcasts et des compétitions.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--va)"><li>Sorties pédagogiques</li><li>Séminaires</li><li>Formations</li><li>Podcasts</li><li>Compétitions</li></ul></div></div><div class="col-photos"><div class="galerie g-3x2"><figure class=""><button class="photo" type="button" style="--ar:3/4" data-full="images/p27_sortie_chantier.jpg" data-cap="27 · Sortie pédagogique sur chantier · CIVILIS" aria-label="Agrandir la photo 27, Sortie pédagogique sur chantier"><img src="images/p27_sortie_chantier.jpg" alt="Sortie pédagogique sur chantier" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>27</b>Sortie pédagogique sur chantier</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p28_echange_etudiants.jpg" data-cap="28 · Échange avec les étudiants · CIVILIS" aria-label="Agrandir la photo 28, Échange avec les étudiants"><img src="images/p28_echange_etudiants.jpg" alt="Échange avec les étudiants" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>28</b>Échange avec les étudiants</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p29_scene_civilis.jpg" data-cap="29 · Prise de parole sur scène · CIVILIS" aria-label="Agrandir la photo 29, Prise de parole sur scène"><img src="images/p29_scene_civilis.jpg" alt="Prise de parole sur scène" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>29</b>Prise de parole sur scène</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p30_defi_equipe.jpg" data-cap="30 · Défi en équipe · CIVILIS" aria-label="Agrandir la photo 30, Défi en équipe"><img src="images/p30_defi_equipe.jpg" alt="Défi en équipe" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>30</b>Défi en équipe</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:3/4" data-full="images/p31_poster.jpg" data-cap="31 · Présentation de projet sur poster · CIVILIS" aria-label="Agrandir la photo 31, Présentation de projet sur poster"><img src="images/p31_poster.jpg" alt="Présentation de projet sur poster" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>31</b>Présentation de projet sur poster</figcaption></figure><figure class="x-hide"><div class="logo"><img src="images/logo_civilis.png" alt="Logo du club CIVILIS" loading="lazy" decoding="async"></div><figcaption>Logo du club CIVILIS</figcaption></figure></div></div></div></div></section>
+<section class="planche projet" id="best-speaker" data-pl="11" data-code="VA 02/02" data-dom="va"><div class="wrap"><header class="pl-head"><span>PL. 11/13</span><span><b>VA</b> 02/02</span><span class="pl-dom"><i class="sq" style="--c:var(--va)"></i>Vie associative</span></header><div class="projet-grid"><div class="col-texte"><p class="kicker">Clubs de l’EMSI · Trois participations</p><h2 class="titre"><span style="--c:var(--va)">THE BEST SPEAKER</span></h2><p class="sous-titre">Compétition d’éloquence</p><div class="texte x-hide"><p>J’ai participé trois fois à The Best Speaker, la compétition d’éloquence organisée par les clubs de l’EMSI. Convaincre un public en quelques minutes m’a appris à structurer un message et à gérer le stress, ce qui me sert aujourd’hui pour présenter une étude ou une note de calcul.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--va)"><li>Structurer un message</li><li>Gérer le stress</li><li>Convaincre un public</li></ul></div></div><div class="col-photos"><div class="galerie g-2x2"><figure class=""><button class="photo" type="button" style="--ar:4/3" data-full="images/p32_pupitre.jpg" data-cap="32 · Discours au pupitre · THE BEST SPEAKER" aria-label="Agrandir la photo 32, Discours au pupitre"><img src="images/p32_pupitre.jpg" alt="Discours au pupitre" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>32</b>Discours au pupitre</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p33_scene_bestspeaker.jpg" data-cap="33 · Prise de parole sur scène · THE BEST SPEAKER" aria-label="Agrandir la photo 33, Prise de parole sur scène"><img src="images/p33_scene_bestspeaker.jpg" alt="Prise de parole sur scène" loading="lazy" decoding="async" style="object-position:50% 45%"></button><figcaption><b>33</b>Prise de parole sur scène</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p34_recompense.jpg" data-cap="34 · Remise de récompense sur scène · THE BEST SPEAKER" aria-label="Agrandir la photo 34, Remise de récompense sur scène"><img src="images/p34_recompense.jpg" alt="Remise de récompense sur scène" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>34</b>Remise de récompense sur scène</figcaption></figure><figure class="x-hide"><button class="photo" type="button" style="--ar:4/3" data-full="images/p35_certificat_trophee.jpg" data-cap="35 · Certificat et trophée · THE BEST SPEAKER" aria-label="Agrandir la photo 35, Certificat et trophée"><img src="images/p35_certificat_trophee.jpg" alt="Certificat et trophée" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>35</b>Certificat et trophée</figcaption></figure></div></div></div></div></section>
+<section class="planche projet" id="presentations" data-pl="12" data-code="PR 01/01" data-dom="pr"><div class="wrap"><header class="pl-head"><span>PL. 12/13</span><span><b>PR</b> 01/01</span><span class="pl-dom"><i class="sq" style="--c:var(--pr)"></i>Présentations</span></header><p class="kicker">Deux présentations qui m’ont marqué · EMSI Tanger</p><h2 class="titre"><span style="--c:var(--pr)">PRÉSENTATIONS</span></h2><p class="sous-titre">En communication professionnelle et en anglais</p><div class="blocs"><div class="bloc"><div class="bloc-photo"><figure class=""><button class="photo" type="button" style="--ar:78/84" data-full="images/p36_genz_simulation.jpg" data-cap="36 · Simulation jouée devant la classe · LA GEN Z AU MAROC" aria-label="Agrandir la photo 36, Simulation jouée devant la classe"><img src="images/p36_genz_simulation.jpg" alt="Simulation jouée devant la classe" loading="lazy" decoding="async" style="object-position:50% 50%"></button><figcaption><b>36</b>Simulation jouée devant la classe</figcaption></figure></div><div class="bloc-texte"><p class="kicker">Communication professionnelle</p><h3 class="titre petit"><span style="--c:var(--pr)">LA GEN Z AU MAROC</span></h3><p class="sous-titre">Simulation des manifestations, jouée en classe</p><div class="texte x-hide"><p>Pour cette présentation, j’ai simulé les manifestations de la Gen Z au Maroc avec des camarades de classe. Nous avons joué la scène en direct, pancarte à la main et chacun dans un rôle, sous les applaudissements de la salle.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--pr)"><li>Mise en scène</li><li>Travail en équipe</li><li>Sujet d’actualité</li></ul></div></div></div><div class="bloc inverse"><div class="bloc-photo"><figure class=""><button class="photo" type="button" style="--ar:4/3" data-full="images/p37_digital_detox.jpg" data-cap="37 · Avec mes camarades, le jour de la présentation · DIGITAL DETOX" aria-label="Agrandir la photo 37, Avec mes camarades, le jour de la présentation"><img src="images/p37_digital_detox.jpg" alt="Avec mes camarades, le jour de la présentation" loading="lazy" decoding="async" style="object-position:55% 60%"></button><figcaption><b>37</b>Avec mes camarades, le jour de la présentation</figcaption></figure></div><div class="bloc-texte"><p class="kicker">Anglais</p><h3 class="titre petit"><span style="--c:var(--pr)">DIGITAL DETOX</span></h3><p class="sous-titre">Exposé en anglais et performance de rap</p><div class="texte x-hide"><p>En anglais, j’ai traité le sujet du Digital Detox en mêlant la présentation à une performance de rap. Le rap m’a permis d’aborder le sujet avec ironie, tout en restant objectif sur le fond.</p></div><div class="bref"><h4>En bref</h4><ul style="--c:var(--pr)"><li>Présentation en anglais</li><li>Performance de rap</li><li>Ironie et objectivité</li></ul></div></div></div></div></div></section>
+<section class="planche" id="contact" data-pl="13" data-code="CONTACT" data-dom="all"><div class="wrap">
+<header class="pl-head"><span>PL. 13/13</span><span><b>CONTACT</b> </span><span class="pl-dom"><i class="sq" style="--c:var(--fg)"></i>Contact</span></header>
 <h2 class="merci">Merci d’avoir pris le temps.</h2>
 <p class="merci-sous">Pour échanger sur un projet ou sur mon parcours, écrivez-moi.</p>
 <div class="contact-rows">
@@ -796,11 +781,11 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
 <a class="noeud" href="#labo-control" data-x="104" data-an="2024" data-nom="LABO CONTROL" aria-label="2024, LABO CONTROL, laboratoire"><circle class="hit" cx="104" cy="74" r="4.4"/><circle class="pt" cx="104" cy="74" r="1.85" style="fill:var(--lab)"/></a>
 <a class="noeud" href="#tanger-med" data-x="186" data-an="2026" data-nom="TANGER MED ENGINEERING" aria-label="2026, TANGER MED ENGINEERING, bureau d’études"><circle class="hit" cx="186" cy="74" r="4.4"/><circle class="pt" cx="186" cy="74" r="1.85" style="fill:var(--be)"/></a>
 </svg>
-<figcaption class="fig"><span><b>FIG. 14</b> À suivre</span></figcaption></figure>
+<figcaption class="fig"><span><b>FIG. 13</b> À suivre</span></figcaption></figure>
 <p class="credit">Portfolio de Youssef Belrhiti · 2026</p>
 </div></section>
 </main>
-<nav class="barre" aria-label="Navigation du portfolio"><div class="barre-in"><span class="b-nom">YOUSSEF BELRHITI</span><button class="b-express" id="express" type="button" aria-pressed="false" title="N’afficher que l’essentiel">Express</button><span class="b-code" id="nav-code">COUVERTURE</span><span class="b-sq" id="nav-sq"><button type="button" data-dom="ch" data-target="bayti-2022" style="--c:var(--ch)" aria-label="Aller à Chantier"></button><button type="button" data-dom="lab" data-target="jgh" style="--c:var(--lab)" aria-label="Aller à Laboratoire"></button><button type="button" data-dom="be" data-target="tanger-med" style="--c:var(--be)" aria-label="Aller à Bureau d’études"></button><button type="button" data-dom="pa" data-target="maquette" style="--c:var(--pa)" aria-label="Aller à Projet académique"></button><button type="button" data-dom="va" data-target="civilis" style="--c:var(--va)" aria-label="Aller à Vie associative"></button><button type="button" data-dom="pr" data-target="presentations" style="--c:var(--pr)" aria-label="Aller à Présentations"></button></span><span class="b-pl" id="nav-pl">PL. 01/14</span></div></nav>
+<nav class="barre" aria-label="Navigation du portfolio"><div class="barre-in"><span class="b-nom">YOUSSEF BELRHITI</span><button class="b-express" id="express" type="button" aria-pressed="false" title="N’afficher que l’essentiel">Express</button><span class="b-code" id="nav-code">COUVERTURE</span><span class="b-sq" id="nav-sq"><button type="button" data-dom="ch" data-target="bayti-2022" style="--c:var(--ch)" aria-label="Aller à Chantier"></button><button type="button" data-dom="lab" data-target="jgh" style="--c:var(--lab)" aria-label="Aller à Laboratoire"></button><button type="button" data-dom="be" data-target="tanger-med" style="--c:var(--be)" aria-label="Aller à Bureau d’études"></button><button type="button" data-dom="pa" data-target="maquette" style="--c:var(--pa)" aria-label="Aller à Projet académique"></button><button type="button" data-dom="va" data-target="civilis" style="--c:var(--va)" aria-label="Aller à Vie associative"></button><button type="button" data-dom="pr" data-target="presentations" style="--c:var(--pr)" aria-label="Aller à Présentations"></button></span><span class="b-pl" id="nav-pl">PL. 01/13</span></div></nav>
 <div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Photo agrandie"><button class="lb-btn lb-close" id="lb-close" type="button" aria-label="Fermer">Fermer</button><button class="lb-btn lb-prev" id="lb-prev" type="button" aria-label="Photo précédente">←</button><button class="lb-btn lb-next" id="lb-next" type="button" aria-label="Photo suivante">→</button><figure class="lb-fig"><img id="lb-img" alt=""><figcaption><span id="lb-num"></span><span id="lb-cap"></span></figcaption></figure></div>
 <script>
 /* ============================================================================
@@ -849,460 +834,6 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
 
   root.YB = root.YB || {};
   root.YB.palette = { couverture, lineaire, css, degradeCss };
-})(typeof window !== 'undefined' ? window : globalThis);
-</script>
-<script>
-/* ============================================================================
-   Éléments finis de barres 3D, méthode des déplacements.
-   Unités : N, m, kg. Six degrés de liberté par nœud : ux, uy, uz, rx, ry, rz.
-   Poutres de Bernoulli (12 × 12) et bielles (effort normal seul).
-   ========================================================================== */
-(function (root) {
-  'use strict';
-
-  const croix = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-  const unitaire = a => { const l = Math.hypot(a[0], a[1], a[2]); return [a[0] / l, a[1] / l, a[2] / l]; };
-
-  /* Rigidité locale d'une poutre. x suit la barre, y est dans le plan de l'âme.
-     Iz : inertie de flexion dans le plan de l'âme (x, y). Iy : inertie dans le plan (x, z). */
-  function rigiditePoutre(E, G, s, L) {
-    const k = new Float64Array(144);
-    const pose = (a, b, v) => { k[a * 12 + b] = v; k[b * 12 + a] = v; };
-    const EA = E * s.A / L, GJ = G * s.J / L;
-    pose(0, 0, EA); pose(0, 6, -EA); pose(6, 6, EA);
-    pose(3, 3, GJ); pose(3, 9, -GJ); pose(9, 9, GJ);
-    const z = E * s.Iz, a1 = 12 * z / (L * L * L), a2 = 6 * z / (L * L), a3 = 4 * z / L, a4 = 2 * z / L;
-    pose(1, 1, a1); pose(1, 5, a2); pose(1, 7, -a1); pose(1, 11, a2);
-    pose(5, 5, a3); pose(5, 7, -a2); pose(5, 11, a4);
-    pose(7, 7, a1); pose(7, 11, -a2); pose(11, 11, a3);
-    const y = E * s.Iy, b1 = 12 * y / (L * L * L), b2 = 6 * y / (L * L), b3 = 4 * y / L, b4 = 2 * y / L;
-    pose(2, 2, b1); pose(2, 4, -b2); pose(2, 8, -b1); pose(2, 10, -b2);
-    pose(4, 4, b3); pose(4, 8, b2); pose(4, 10, b4);
-    pose(8, 8, b1); pose(8, 10, b2); pose(10, 10, b3);
-    return k;
-  }
-
-  /* Repère local : x suit la barre, y est dans le plan de l'âme du côté de `ref`, z complète le trièdre direct. */
-  function repere(a, b, ref) {
-    const ex = unitaire([b[0] - a[0], b[1] - a[1], b[2] - a[2]]);
-    const ez = unitaire(croix(ex, ref));
-    return [ex, croix(ez, ex), ez];
-  }
-
-  /* Factorisation de Cholesky en place (triangle inférieur), matrice pleine rangée par lignes. */
-  function cholesky(A, n) {
-    for (let j = 0; j < n; j++) {
-      const lj = j * n;
-      let s = A[lj + j];
-      for (let k = 0; k < j; k++) s -= A[lj + k] * A[lj + k];
-      if (!(s > 0)) throw new Error('Matrice non définie positive : la structure est instable.');
-      const d = Math.sqrt(s);
-      A[lj + j] = d;
-      for (let i = j + 1; i < n; i++) {
-        const li = i * n;
-        let t = A[li + j];
-        for (let k = 0; k < j; k++) t -= A[li + k] * A[lj + k];
-        A[li + j] = t / d;
-      }
-    }
-    return A;
-  }
-  function descenteRemontee(L, n, b) {
-    const x = new Float64Array(n);
-    for (let i = 0; i < n; i++) {
-      const li = i * n;
-      let s = b[i];
-      for (let k = 0; k < i; k++) s -= L[li + k] * x[k];
-      x[i] = s / L[li + i];
-    }
-    for (let i = n - 1; i >= 0; i--) {
-      let s = x[i];
-      for (let k = i + 1; k < n; k++) s -= L[k * n + i] * x[k];
-      x[i] = s / L[i * n + i];
-    }
-    return x;
-  }
-
-  /* Valeurs et vecteurs propres d'une petite matrice symétrique (rotations de Jacobi). */
-  function jacobi(A, m) {
-    const V = new Float64Array(m * m);
-    for (let i = 0; i < m; i++) V[i * m + i] = 1;
-    for (let tour = 0; tour < 80; tour++) {
-      let hors = 0, diag = 0;
-      for (let p = 0; p < m; p++) { diag += A[p * m + p] * A[p * m + p]; for (let q = p + 1; q < m; q++) hors += A[p * m + q] * A[p * m + q]; }
-      if (hors <= 1e-26 * diag) break;
-      for (let p = 0; p < m; p++) for (let q = p + 1; q < m; q++) {
-        const apq = A[p * m + q];
-        if (Math.abs(apq) < 1e-300) continue;
-        const th = (A[q * m + q] - A[p * m + p]) / (2 * apq);
-        const t = (th >= 0 ? 1 : -1) / (Math.abs(th) + Math.sqrt(th * th + 1));
-        const c = 1 / Math.sqrt(t * t + 1), s = t * c;
-        for (let k = 0; k < m; k++) { const a = A[k * m + p], b = A[k * m + q]; A[k * m + p] = c * a - s * b; A[k * m + q] = s * a + c * b; }
-        for (let k = 0; k < m; k++) { const a = A[p * m + k], b = A[q * m + k]; A[p * m + k] = c * a - s * b; A[q * m + k] = s * a + c * b; }
-        for (let k = 0; k < m; k++) { const a = V[k * m + p], b = V[k * m + q]; V[k * m + p] = c * a - s * b; V[k * m + q] = s * a + c * b; }
-      }
-    }
-    const val = new Float64Array(m);
-    for (let i = 0; i < m; i++) val[i] = A[i * m + i];
-    return { val, vec: V };
-  }
-
-  /* noeuds : [{ p: [x, y, z], bloque: bool }]
-     barres : [{ i, j, type: 'poutre' | 'bielle', s: { A, Iz, Iy, J }, ref: [x, y, z] }]
-     mat    : { E, G, rho } */
-  function Structure(noeuds, barres, mat) {
-    const E = mat.E, G = mat.G;
-    const nN = noeuds.length;
-    const ddl = new Int32Array(nN * 6).fill(-1);
-    let n = 0;
-    for (let a = 0; a < nN; a++) if (!noeuds[a].bloque) for (let d = 0; d < 6; d++) ddl[a * 6 + d] = n++;
-    const sens = new Int8Array(n);
-    for (let a = 0; a < nN; a++) for (let d = 0; d < 6; d++) if (ddl[a * 6 + d] >= 0) sens[ddl[a * 6 + d]] = d;
-
-    const geo = barres.map(b => {
-      const A = noeuds[b.i].p, B = noeuds[b.j].p;
-      const L = Math.hypot(B[0] - A[0], B[1] - A[1], B[2] - A[2]);
-      if (b.type === 'bielle') return { L, ex: unitaire([B[0] - A[0], B[1] - A[1], B[2] - A[2]]), k: E * b.s.A / L };
-      const R = repere(A, B, b.ref);
-      const kl = rigiditePoutre(E, G, b.s, L);
-      const kg = new Float64Array(144);
-      for (let p = 0; p < 4; p++) for (let q = 0; q < 4; q++)
-        for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
-          let v = 0;
-          for (let a = 0; a < 3; a++) for (let b2 = 0; b2 < 3; b2++) v += R[a][r] * kl[(3 * p + a) * 12 + 3 * q + b2] * R[b2][c];
-          kg[(3 * p + r) * 12 + 3 * q + c] = v;
-        }
-      return { L, R, kg };
-    });
-
-    const K = new Float64Array(n * n);
-    barres.forEach((b, e) => {
-      const g = geo[e];
-      if (b.type === 'bielle') {
-        for (let p = 0; p < 2; p++) for (let q = 0; q < 2; q++) {
-          const sg = p === q ? 1 : -1, np = p ? b.j : b.i, nq = q ? b.j : b.i;
-          for (let r = 0; r < 3; r++) {
-            const I = ddl[np * 6 + r]; if (I < 0) continue;
-            for (let c = 0; c < 3; c++) { const J = ddl[nq * 6 + c]; if (J >= 0) K[I * n + J] += sg * g.k * g.ex[r] * g.ex[c]; }
-          }
-        }
-        return;
-      }
-      const idx = new Int32Array(12);
-      for (let d = 0; d < 6; d++) { idx[d] = ddl[b.i * 6 + d]; idx[6 + d] = ddl[b.j * 6 + d]; }
-      for (let r = 0; r < 12; r++) {
-        if (idx[r] < 0) continue;
-        for (let c = 0; c < 12; c++) if (idx[c] >= 0) K[idx[r] * n + idx[c]] += g.kg[r * 12 + c];
-      }
-    });
-    const Lc = cholesky(K.slice(), n);
-    const resoudre = F => descenteRemontee(Lc, n, F);
-
-    /* Forces nodales équivalentes à une charge répartie uniforme q (repère local), poutre bi-encastrée. */
-    function equivalentes(g, q) {
-      const R = g.R, L = g.L, f = new Float64Array(12);
-      const ql = [0, 1, 2].map(a => R[a][0] * q[0] + R[a][1] * q[1] + R[a][2] * q[2]);
-      f[0] = f[6] = ql[0] * L / 2;
-      f[1] = f[7] = ql[1] * L / 2; f[5] = ql[1] * L * L / 12; f[11] = -f[5];
-      f[2] = f[8] = ql[2] * L / 2; f[4] = -ql[2] * L * L / 12; f[10] = -f[4];
-      return f;
-    }
-    const enGlobal = (g, fl) => {
-      const fg = new Float64Array(12);
-      for (let p = 0; p < 4; p++) for (let r = 0; r < 3; r++) {
-        let v = 0;
-        for (let a = 0; a < 3; a++) v += g.R[a][r] * fl[3 * p + a];
-        fg[3 * p + r] = v;
-      }
-      return fg;
-    };
-
-    /* cas : { q: tableau par barre de [qx, qy, qz] en N/m (repère global) ou null, P: [[noeud, fx, fy, fz], ...] } */
-    function forces(cas) {
-      const F = new Float64Array(n);
-      const ajoute = (noeud, d, v) => { const I = ddl[noeud * 6 + d]; if (I >= 0) F[I] += v; };
-      (cas.P || []).forEach(p => { for (let d = 0; d < 3; d++) ajoute(p[0], d, p[1 + d]); });
-      if (cas.q) barres.forEach((b, e) => {
-        const q = cas.q[e];
-        if (!q) return;
-        const g = geo[e];
-        if (b.type === 'bielle') { for (let d = 0; d < 3; d++) { ajoute(b.i, d, q[d] * g.L / 2); ajoute(b.j, d, q[d] * g.L / 2); } return; }
-        const fg = enGlobal(g, equivalentes(g, q));
-        for (let d = 0; d < 6; d++) { ajoute(b.i, d, fg[d]); ajoute(b.j, d, fg[6 + d]); }
-      });
-      return F;
-    }
-
-    const deplBarre = (b, U) => {
-      const ug = new Float64Array(12);
-      for (let d = 0; d < 6; d++) {
-        const I = ddl[b.i * 6 + d], J = ddl[b.j * 6 + d];
-        ug[d] = I < 0 ? 0 : U[I]; ug[6 + d] = J < 0 ? 0 : U[J];
-      }
-      return ug;
-    };
-
-    /* Déformée d'une barre : ns points (dx, dy, dz) écrits dans `out` à partir de `off`.
-       Interpolation cubique exacte, plus le terme propre à la charge répartie q. */
-    function deformee(e, U, q, ns, out, off) {
-      const b = barres[e], g = geo[e], ug = deplBarre(b, U);
-      if (b.type === 'bielle') {
-        for (let k = 0; k < ns; k++) { const x = k / (ns - 1); for (let d = 0; d < 3; d++) out[off + 3 * k + d] = (1 - x) * ug[d] + x * ug[6 + d]; }
-        return;
-      }
-      const R = g.R, L = g.L, ul = new Float64Array(12);
-      for (let p = 0; p < 4; p++) for (let a = 0; a < 3; a++) {
-        let v = 0;
-        for (let c = 0; c < 3; c++) v += R[a][c] * ug[3 * p + c];
-        ul[3 * p + a] = v;
-      }
-      let py = 0, pz = 0;
-      if (q) {
-        const qy = R[1][0] * q[0] + R[1][1] * q[1] + R[1][2] * q[2], qz = R[2][0] * q[0] + R[2][1] * q[1] + R[2][2] * q[2];
-        py = qy * L * L * L * L / (24 * E * b.s.Iz); pz = qz * L * L * L * L / (24 * E * b.s.Iy);
-      }
-      for (let k = 0; k < ns; k++) {
-        const x = k / (ns - 1), x2 = x * x, x3 = x2 * x;
-        const N1 = 1 - 3 * x2 + 2 * x3, N2 = (x - 2 * x2 + x3) * L, N3 = 3 * x2 - 2 * x3, N4 = (x3 - x2) * L, bulle = x2 * (1 - x) * (1 - x);
-        const u = (1 - x) * ul[0] + x * ul[6];
-        const v = N1 * ul[1] + N2 * ul[5] + N3 * ul[7] + N4 * ul[11] + py * bulle;
-        const w = N1 * ul[2] - N2 * ul[4] + N3 * ul[8] - N4 * ul[10] + pz * bulle;
-        for (let d = 0; d < 3; d++) out[off + 3 * k + d] = R[0][d] * u + R[1][d] * v + R[2][d] * w;
-      }
-    }
-
-    /* Efforts aux extrémités d'une barre (repère global), pour vérifier l'équilibre. */
-    function effortsBarre(e, U, q) {
-      const b = barres[e], g = geo[e], ug = deplBarre(b, U), f = new Float64Array(12);
-      if (b.type === 'bielle') {
-        let al = 0;
-        for (let d = 0; d < 3; d++) al += g.ex[d] * (ug[6 + d] - ug[d]);
-        for (let d = 0; d < 3; d++) {
-          f[d] = -g.k * al * g.ex[d] - (q ? q[d] * g.L / 2 : 0);
-          f[6 + d] = g.k * al * g.ex[d] - (q ? q[d] * g.L / 2 : 0);
-        }
-        return f;
-      }
-      for (let r = 0; r < 12; r++) { let v = 0; for (let c = 0; c < 12; c++) v += g.kg[r * 12 + c] * ug[c]; f[r] = v; }
-      if (q) { const fe = enGlobal(g, equivalentes(g, q)); for (let r = 0; r < 12; r++) f[r] -= fe[r]; }
-      return f;
-    }
-
-    /* Masses concentrées aux nœuds. extra : masse linéique ajoutée par barre (kg/m). */
-    function masses(extra) {
-      const M = new Float64Array(n);
-      barres.forEach((b, e) => {
-        const m = (mat.rho * b.s.A + (extra && extra[e] ? extra[e] : 0)) * geo[e].L / 2;
-        for (let d = 0; d < 3; d++) { const I = ddl[b.i * 6 + d], J = ddl[b.j * 6 + d]; if (I >= 0) M[I] += m; if (J >= 0) M[J] += m; }
-      });
-      return M;
-    }
-
-    /* Premiers modes propres par itération sur sous-espace : K.phi = w².M.phi, M diagonale. */
-    function modes(M, nb) {
-      const m = Math.min(n, Math.max(2 * nb, nb + 5));
-      let X = new Float64Array(n * m), graine = 20261109;
-      const alea = () => { graine = (graine * 1103515245 + 12345) % 2147483648; return graine / 2147483648 - 0.5; };
-      for (let c = 0; c < m; c++) for (let i = 0; i < n; i++) X[c * n + i] = c < 3 ? (sens[i] === c ? 1 + 0.1 * alea() : 0) : alea();
-      let lam = null, tours = 0;
-      for (let it = 0; it < 60; it++) {
-        tours = it + 1;
-        const B = new Float64Array(n * m), Y = new Float64Array(n * m);
-        for (let c = 0; c < m; c++) for (let i = 0; i < n; i++) B[c * n + i] = M[i] * X[c * n + i];
-        for (let c = 0; c < m; c++) Y.set(resoudre(B.subarray(c * n, (c + 1) * n)), c * n);
-        const Kr = new Float64Array(m * m), Mr = new Float64Array(m * m);
-        for (let a = 0; a < m; a++) for (let b = a; b < m; b++) {
-          let k = 0, mm = 0;
-          for (let i = 0; i < n; i++) { const ya = Y[a * n + i]; k += ya * B[b * n + i]; mm += ya * M[i] * Y[b * n + i]; }
-          Kr[a * m + b] = Kr[b * m + a] = k; Mr[a * m + b] = Mr[b * m + a] = mm;
-        }
-        const Lr = cholesky(Mr, m);
-        /* C = Lr^-1 . Kr . Lr^-t */
-        const C = Kr;
-        for (let c = 0; c < m; c++) for (let i = 0; i < m; i++) { let s = C[i * m + c]; for (let k = 0; k < i; k++) s -= Lr[i * m + k] * C[k * m + c]; C[i * m + c] = s / Lr[i * m + i]; }
-        for (let r = 0; r < m; r++) for (let i = 0; i < m; i++) { let s = C[r * m + i]; for (let k = 0; k < i; k++) s -= Lr[i * m + k] * C[r * m + k]; C[r * m + i] = s / Lr[i * m + i]; }
-        for (let a = 0; a < m; a++) for (let b = a + 1; b < m; b++) C[a * m + b] = C[b * m + a] = (C[a * m + b] + C[b * m + a]) / 2;
-        const pr = jacobi(C, m);
-        const ordre = Array.from({ length: m }, (_, i) => i).sort((a, b) => pr.val[a] - pr.val[b]);
-        /* Q = Lr^-t . Z, puis X = Y . Q */
-        const Q = new Float64Array(m * m);
-        ordre.forEach((src, col) => {
-          for (let i = m - 1; i >= 0; i--) { let s = pr.vec[i * m + src]; for (let k = i + 1; k < m; k++) s -= Lr[k * m + i] * Q[k * m + col]; Q[i * m + col] = s / Lr[i * m + i]; }
-        });
-        const Xn = new Float64Array(n * m);
-        for (let col = 0; col < m; col++) for (let a = 0; a < m; a++) { const qa = Q[a * m + col]; if (qa !== 0) for (let i = 0; i < n; i++) Xn[col * n + i] += qa * Y[a * n + i]; }
-        X = Xn;
-        const neuf = ordre.map(i => pr.val[i]);
-        let ecart = 0;
-        if (lam) for (let k = 0; k < nb; k++) ecart = Math.max(ecart, Math.abs(neuf[k] - lam[k]) / neuf[k]);
-        const fini = lam && ecart < 1e-10;
-        lam = neuf;
-        if (fini) break;
-      }
-      const sortie = [];
-      for (let k = 0; k < nb; k++) sortie.push({ w2: lam[k], f: Math.sqrt(lam[k]) / (2 * Math.PI), U: X.slice(k * n, (k + 1) * n) });
-      sortie.tours = tours;
-      return sortie;
-    }
-
-    return { n, ddl, geo, K, resoudre, forces, deformee, effortsBarre, masses, modes };
-  }
-
-  const FEM = { Structure, cholesky, jacobi, repere, ACIER: { E: 210e9, G: 81e9, rho: 7850 } };
-  root.FEM = FEM;
-  if (typeof module !== 'undefined' && module.exports) module.exports = FEM;
-})(typeof window !== 'undefined' ? window : globalThis);
-</script>
-<script>
-/* ============================================================================
-   Halle type en acier : portiques à deux versants, pannes et contreventements.
-   Modèle simplifié à but illustratif, sans rapport avec un projet réel.
-   X : portée des portiques. Y : longueur de la halle. Z : hauteur.
-   ========================================================================== */
-(function (root) {
-  'use strict';
-  const FEM = root.FEM || require('./fem.js');
-  const maintenant = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
-
-  const GEO = { portee: 24, hPoteau: 7, hFaitage: 8.8, entraxe: 6, nPortiques: 6 };
-  const SECTIONS = {
-    poteau: { nom: 'HEA 320', A: 124.4e-4, Iz: 22930e-8, Iy: 6985e-8, J: 108e-8 },
-    traverse: { nom: 'IPE 450', A: 98.8e-4, Iz: 33740e-8, Iy: 1676e-8, J: 66.9e-8 },
-    panne: { nom: 'IPE 180', A: 23.9e-4, Iz: 1317e-8, Iy: 101e-8, J: 4.79e-8 },
-    contrev: { nom: 'L 70 × 7', A: 9.40e-4 }
-  };
-  const CHARGES = { couverture: 250, exploitation: 400, vent: 1000 };   /* N/m² */
-  const NS = 9;            /* points par barre pour tracer la déformée */
-  const NK = 9;            /* nœuds par portique : pied, tête, 2 points de traverse, faîtage, puis symétrique */
-  const G0 = 9.81;
-
-  function construire() {
-    const t0 = maintenant();
-    const { portee, hPoteau, hFaitage, entraxe, nPortiques: nP } = GEO;
-    const id = (f, k) => f * NK + k;
-    const noeuds = [];
-    for (let f = 0; f < nP; f++) for (let k = 0; k < NK; k++) {
-      const pied = k === 0 || k === NK - 1;
-      const u = pied ? (k === 0 ? 0 : 1) : (k - 1) / (NK - 3);
-      const z = pied ? 0 : hPoteau + (hFaitage - hPoteau) * (1 - Math.abs(2 * u - 1));
-      noeuds.push({ p: [portee * u, f * entraxe, z], bloque: pied, f, k });
-    }
-    const barres = [];
-    const X = [1, 0, 0], Z = [0, 0, 1];
-    for (let f = 0; f < nP; f++) {
-      barres.push({ i: id(f, 0), j: id(f, 1), type: 'poutre', s: SECTIONS.poteau, ref: X, genre: 'poteau', f, cote: 0 });
-      barres.push({ i: id(f, NK - 1), j: id(f, NK - 2), type: 'poutre', s: SECTIONS.poteau, ref: X, genre: 'poteau', f, cote: 1 });
-      for (let k = 1; k < NK - 2; k++) barres.push({ i: id(f, k), j: id(f, k + 1), type: 'poutre', s: SECTIONS.traverse, ref: Z, genre: 'traverse', f, k });
-    }
-    for (let f = 0; f < nP - 1; f++) for (let k = 1; k < NK - 1; k++) {
-      const rive = k === 1 || k === NK - 2;
-      barres.push({ i: id(f, k), j: id(f + 1, k), type: 'poutre', s: SECTIONS.panne, ref: Z, genre: 'panne', f, k, larg: portee / (NK - 3) / (rive ? 2 : 1) });
-    }
-    [0, nP - 2].forEach(f => {
-      /* palées de stabilité dans les longs pans, puis poutres au vent dans les versants */
-      [[0, 1], [NK - 1, NK - 2]].forEach(([pied, tete]) => {
-        barres.push({ i: id(f, pied), j: id(f + 1, tete), type: 'bielle', s: SECTIONS.contrev, genre: 'contrev', f });
-        barres.push({ i: id(f + 1, pied), j: id(f, tete), type: 'bielle', s: SECTIONS.contrev, genre: 'contrev', f });
-      });
-      for (let k = 1; k < NK - 2; k++) {
-        barres.push({ i: id(f, k), j: id(f + 1, k + 1), type: 'bielle', s: SECTIONS.contrev, genre: 'contrev', f });
-        barres.push({ i: id(f + 1, k), j: id(f, k + 1), type: 'bielle', s: SECTIONS.contrev, genre: 'contrev', f });
-      }
-    });
-
-    const S = FEM.Structure(noeuds, barres, FEM.ACIER);
-    const t1 = maintenant();
-
-    /* Charges, en N/m dans le repère global. Vent : pressions sur les parois verticales seules
-       (0,8 q au vent, 0,5 q sous le vent), sans soulèvement de la toiture. */
-    const nB = barres.length, vide = () => new Array(nB).fill(null);
-    const q = { G: vide(), Q: vide(), W1: vide(), W2: vide() }, P = { G: [], Q: [], W1: [], W2: [] };
-    const faite = (NK - 1) / 2;
-    barres.forEach((b, e) => {
-      q.G[e] = [0, 0, -FEM.ACIER.rho * G0 * b.s.A];
-      if (b.genre === 'panne') {
-        q.G[e][2] -= CHARGES.couverture * b.larg;
-        q.Q[e] = [0, 0, -CHARGES.exploitation * b.larg];
-      } else if (b.genre === 'poteau') {
-        const larg = b.f === 0 || b.f === nP - 1 ? entraxe / 2 : entraxe;
-        q.W1[e] = [(b.cote === 0 ? 0.8 : 0.5) * CHARGES.vent * larg, 0, 0];
-      }
-    });
-    for (let k = 1; k < NK - 1; k++) {
-      const larg = portee / (NK - 3) / (k === 1 || k === NK - 2 ? 2 : 1), z = noeuds[id(0, k)].p[2];
-      P.W2.push([id(0, k), 0, 0.8 * CHARGES.vent * larg * z / 2, 0]);
-      P.W2.push([id(nP - 1, k), 0, 0.5 * CHARGES.vent * larg * z / 2, 0]);
-    }
-
-    const champ = nom => {
-      const U = S.resoudre(S.forces({ q: q[nom], P: P[nom] }));
-      const d = new Float32Array(nB * NS * 3);
-      for (let e = 0; e < nB; e++) S.deformee(e, U, q[nom][e], NS, d, e * NS * 3);
-      return { U, d };
-    };
-    const base = { G: champ('G'), Q: champ('Q'), W1: champ('W1'), W2: champ('W2') };
-    const t2 = maintenant();
-    const somme = (a, b) => { const d = new Float32Array(a.length); for (let i = 0; i < d.length; i++) d[i] = a[i] + b[i]; return d; };
-
-    /* Bilan d'un champ de déplacements : maximum, lieu, critère, amplification d'affichage */
-    function bilan(d) {
-      let max = 0, maxN = 0, im = 0;
-      for (let i = 0; i < d.length; i += 3) {
-        const m = Math.hypot(d[i], d[i + 1], d[i + 2]), k = (i / 3) % NS;
-        if (m > max) max = m;
-        if ((k === 0 || k === NS - 1) && m > maxN) { maxN = m; im = i / 3; }
-      }
-      const b = barres[Math.floor(im / NS)], noeud = noeuds[im % NS === 0 ? b.i : b.j];
-      const vertical = Math.abs(d[im * 3 + 2]) >= Math.hypot(d[im * 3], d[im * 3 + 1]);
-      const lieu = noeud.k === faite ? 'au faîtage' : noeud.k === 1 || noeud.k === NK - 2 ? 'en tête de poteau' : 'sur une traverse';
-      const c = new Float32Array(d.length / 3);
-      for (let i = 0; i < c.length; i++) c[i] = Math.hypot(d[3 * i], d[3 * i + 1], d[3 * i + 2]) / max;
-      const brut = 0.9 / max, dec = Math.pow(10, Math.floor(Math.log10(brut)));
-      const amp = [1, 2, 5, 10].map(v => v * dec).reduce((a, v) => (Math.abs(Math.log(v / brut)) < Math.abs(Math.log(a / brut)) ? v : a));
-      return { d, c, max, maxNoeud: maxN, lieu, vertical, critere: vertical ? 'L/' + Math.round(portee / maxN) : 'H/' + Math.round(hPoteau / maxN), amp };
-    }
-    const cas = {
-      G: Object.assign(bilan(base.G.d), { nom: 'G', titre: 'Poids propre et couverture' }),
-      ELS: Object.assign(bilan(somme(base.G.d, base.Q.d)), { nom: 'G + Q', titre: 'ELS, charges permanentes et d’exploitation' }),
-      W1: Object.assign(bilan(base.W1.d), { nom: 'W1', titre: 'Vent sur long pan' }),
-      W2: Object.assign(bilan(base.W2.d), { nom: 'W2', titre: 'Vent sur pignon', critere: null })
-    };
-
-    /* Modes propres : masse de l'ossature et de la couverture */
-    let mesModes = null;
-    function modes() {
-      if (mesModes) return mesModes;
-      const t = maintenant();
-      const M = S.masses(barres.map(b => (b.genre === 'panne' ? CHARGES.couverture * b.larg / G0 : 0)));
-      const bruts = S.modes(M, 3);
-      mesModes = bruts.map((md, r) => {
-        const d = new Float32Array(nB * NS * 3);
-        for (let e = 0; e < nB; e++) S.deformee(e, md.U, null, NS, d, e * NS * 3);
-        let max = 0;
-        for (let i = 0; i < d.length; i += 3) max = Math.max(max, Math.hypot(d[i], d[i + 1], d[i + 2]));
-        /* signe fixé pour que l'animation démarre toujours du même côté */
-        let pic = 0;
-        for (let i = 0; i < d.length; i++) if (Math.abs(d[i]) > Math.abs(d[pic])) pic = i;
-        const s = (d[pic] < 0 ? -1 : 1) / max;
-        const c = new Float32Array(d.length / 3);
-        for (let i = 0; i < d.length; i++) d[i] *= s;
-        for (let i = 0; i < c.length; i++) c[i] = Math.hypot(d[3 * i], d[3 * i + 1], d[3 * i + 2]);
-        return { d, c, f: md.f, T: 1 / md.f, nom: 'Mode ' + (r + 1), titre: 'Mode propre ' + (r + 1) };
-      });
-      mesModes.duree = maintenant() - t;
-      mesModes.tours = bruts.tours;
-      return mesModes;
-    }
-
-    return {
-      geo: GEO, sections: SECTIONS, charges: CHARGES, noeuds, barres, NS, NK, cas, modes, S, q, P, base,
-      stats: { noeuds: noeuds.length, barres: nB, inconnues: S.n, assemblage: t1 - t0, resolution: t2 - t1, total: t2 - t0 }
-    };
-  }
-
-  const HALLE = { construire, GEO, SECTIONS, CHARGES };
-  root.HALLE = HALLE;
-  if (typeof module !== 'undefined' && module.exports) module.exports = HALLE;
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script>
@@ -1427,7 +958,7 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
   if (apercu && matchMedia('(hover: hover) and (pointer: fine)').matches) {
     const img = $('img', apercu);
     rangs.forEach(r => {
-      if (!r.dataset.img) return;   /* le banc d'essai n'a pas de photo d'aperçu */
+      if (!r.dataset.img) return;   /* un rang sans photo n'a pas d'aperçu */
       r.addEventListener('pointerenter', () => { if (!r.classList.contains('dim')) { img.src = r.dataset.img; apercu.classList.add('on'); } });
       r.addEventListener('pointerleave', () => apercu.classList.remove('on'));
       r.addEventListener('pointermove', ev => {
@@ -1542,7 +1073,7 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
     if (!contour || !poutre || !cur.l || !cur.t2 || !ch.g) throw new Error('dessin de la console incomplet');
 
     /* a : position de la charge et de la sonde (0 au bout libre, 1 à l'encastrement). s : intensité P/qL. */
-    const st = { a: 1, aVise: 1, s: 0, v: 0, vise: 0, front: reduce ? 2 : 0, script: null, appui: false, dessus: false, tenir: 0, attente: false, apres: 0, dernier: 0, raf: 0, img: null, largeur: 0, polices: null };
+    const st = { a: 1, aVise: 1, s: 0, v: 0, vise: 0, front: reduce ? 2 : 0, script: null, appui: false, dessus: false, tenir: 0, attente: false, apres: 0, pilote: false, ouvert: reduce, dernier: 0, raf: 0, img: null, largeur: 0, polices: null };
     let cBy, cProf, cIncl, cDoux, cIdx;                     /* tampons par colonne */
     const P08 = new Float32Array(256), P09 = new Float32Array(256), P16 = new Float32Array(256);
     for (let i = 0; i < 256; i++) { P08[i] = Math.pow(i / 255, 0.8); P09[i] = Math.pow(i / 255, 0.9); P16[i] = Math.pow(i / 255, 1.6); }
@@ -1621,9 +1152,9 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
       noeuds.forEach(n => n.el.setAttribute('transform', 'translate(0 ' + f2(yPoutre(n.t) - Y0) + ')'));
 
       /* charge ponctuelle P, à la couleur du diagramme sous elle */
-      const x = XA + PORTEE * a, yb = yPoutre(a), force = borne(Math.abs(s) / P_SURVOL * 1.6, 0, 1), charge = st.vise > 0 || s > 0.006;
+      const x = XA + PORTEE * a, yb = yPoutre(a), force = borne(Math.abs(s) / P_SURVOL * 1.6, 0, 1), pese = st.vise > 0 || s > 0.006, charge = pese && !st.pilote;
       ch.g.style.opacity = charge ? f2(force) : '0';
-      if (terme) terme.classList.toggle('on', charge && force > 0.3);
+      if (terme) terme.classList.toggle('on', pese && force > 0.3);
       if (charge) {
         const k = Math.round(a * 255) * 3, c = 'rgb(' + LUT[k] + ',' + LUT[k + 1] + ',' + LUT[k + 2] + ')';
         ch.g.setAttribute('transform', 'translate(' + f2(x) + ' ' + f2(yb - 1.7) + ')');
@@ -1661,7 +1192,7 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
         if (lectF.textContent !== vf) lectF.textContent = vf;
       }
     }
-    const dessiner = () => { if (st.img) { peindre(); tracer(); } };
+    const dessiner = () => { if (st.img) { peindre(); tracer(); if (api.apres) api.apres(); } };
 
     /* ---------- animation ---------- */
     function pas(now) {
@@ -1692,6 +1223,8 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
         st.a = st.aVise = st.front = ease(p);
         if (p < 1) return;
         st.front = 2;
+        finOuverture();
+        if (window.YB.guide && window.YB.guide.present) { st.script = null; return; }
         const t1 = now + 380;
         st.script = n2 => {
           if (n2 < t1) return;
@@ -1701,7 +1234,8 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
       };
       reveiller();
     }
-    const prendre = () => { if (st.script) { st.script = null; st.front = 2; st.vise = 0; st.attente = false; } };   /* le visiteur prend la main */
+    const prendre = () => { if (st.script) { st.script = null; st.front = 2; st.vise = 0; st.attente = false; finOuverture(); } };   /* le visiteur prend la main */
+    function finOuverture() { if (st.ouvert) return; st.ouvert = true; doc.dispatchEvent(new Event('yb-console-prete')); }
 
     const versT = ev => {
       const m = svg.getScreenCTM();
@@ -1709,7 +1243,7 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
       return borne((new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()).x - XA) / PORTEE, 0, 1);
     };
     scene.addEventListener('pointermove', ev => {
-      if (ev.pointerType !== 'mouse' && !st.appui) return;
+      if (st.pilote || (ev.pointerType !== 'mouse' && !st.appui)) return;
       const t = versT(ev);
       if (t === null) return;
       prendre(); st.dessus = true; st.aVise = t;
@@ -1717,7 +1251,7 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
       reveiller();
     });
     scene.addEventListener('pointerdown', ev => {
-      if (ev.pointerType === 'mouse' && ev.button !== 0) return;
+      if (st.pilote || (ev.pointerType === 'mouse' && ev.button !== 0)) return;
       const t = versT(ev);
       if (t === null) return;
       prendre(); st.appui = true; st.aVise = t;
@@ -1728,6 +1262,7 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
       reveiller();
     });
     const lacher = ev => {
+      if (st.pilote) return;
       const quitte = ev.type === 'pointerleave' || ev.type === 'pointercancel';
       const appuyait = st.appui;
       st.appui = false;
@@ -1737,7 +1272,25 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
       reveiller();
     };
     ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => scene.addEventListener(t, lacher));
-    noeuds.forEach(n => n.el.addEventListener('focus', () => { prendre(); if (!st.dessus && !st.appui && !st.attente) st.vise = 0; st.aVise = n.t; reveiller(); }));
+    noeuds.forEach(n => n.el.addEventListener('focus', () => { if (st.pilote) return; prendre(); if (!st.dessus && !st.appui && !st.attente) st.vise = 0; st.aVise = n.t; reveiller(); }));
+
+    /* Interface offerte à la figurine (js/guide.js) : elle se pose sur la poutre et devient la charge P. */
+    const ctm = () => svg.getScreenCTM();
+    const api = window.YB.console = {
+      pret: true, apres: null, POIDS: P_SURVOL,
+      pilote: () => st.pilote,
+      piloter(on) {
+        prendre(); st.pilote = !!on; st.appui = false; st.attente = false; st.dessus = false;
+        if (!on) st.vise = 0;
+        reveiller();
+      },
+      porter(t, s) { st.a = st.aVise = borne(t, 0, 1); st.vise = s; reveiller(); },
+      choc(dv) { if (!reduce) st.v += dv; reveiller(); },
+      longueur() { const m = ctm(); return m ? PORTEE * m.a : 0; },
+      xEcran(t) { const m = ctm(); return m ? m.a * (XA + PORTEE * t) + m.e : 0; },
+      yEcran(t) { const m = ctm(); return m ? m.d * yPoutre(borne(t, 0, 1)) + m.f - 1.7 : -1e4; },
+      tDepuis(x) { const m = ctm(); return m ? ((x - m.e) / m.a - XA) / PORTEE : 0; }
+    };
 
     function taille() {
       const r = cv.getBoundingClientRect();
@@ -1756,342 +1309,6 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
     taille();
     if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(() => { st.polices = null; st.largeur = 0; dessiner(); });
   }
-})();
-</script>
-<script>
-/* ============================================================================
-   Banc d'essai : la halle est calculée dans le navigateur (éléments finis), puis dessinée au trait
-   en axonométrie. Montage animé, cas de charge, modes propres, rotation à la souris ou au doigt.
-   ========================================================================== */
-(function () {
-  'use strict';
-  const doc = document;
-  const sec = doc.getElementById('banc-essai'), cv = doc.getElementById('halle');
-  if (!sec || !cv || !cv.getContext || !window.HALLE || !window.YB) return;
-  const id = x => doc.getElementById(x);
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const ctx = cv.getContext('2d'), halo = doc.createElement('canvas'), hctx = halo.getContext('2d');
-  const LUT = window.YB.palette.lineaire;
-  const fr = (v, d) => v.toFixed(d).replace('.', ',');
-  const borne = (v, a, b) => Math.min(b, Math.max(a, v));
-  const POLICE = '"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace';
-  const CENTRE = [12, 15, 3.4];
-  const AMP_MODE = 1.0, RAIDEUR = 7.5, AMORT = 0.55, PAQUETS = 12;
-  const EPAISSEUR = { poteau: 2.7, traverse: 2.7, panne: 1.5, contrev: 1.05 };
-
-  let M = null, nB = 0, NS = 0, base, V, C, tV, tC, deV, deC, SX, SY, SD, ordre, debut, duree, inverse, finMontage = 0;
-  let W = 0, Ht = 0, dpr = 1, raf = 0, dernier = 0;
-  const cam = { az: -0.66, el: 0.44, S: 12 };
-  const st = { cle: null, e: 1, ve: 0, mix: 0, deMix: 0, tMode: 0, tMontage: -1, visible: false, glisse: false, choisi: false, vu: false };
-  const coul = {};
-  const boutons = Array.from(sec.querySelectorAll('[data-cas]'));
-
-  /* ---------- couleurs du thème ---------- */
-  function hex(v) {
-    v = v.trim();
-    if (v[0] === '#') { if (v.length === 4) v = '#' + v[1] + v[1] + v[2] + v[2] + v[3] + v[3]; return [1, 3, 5].map(i => parseInt(v.slice(i, i + 2), 16)); }
-    const m = v.match(/[\d.]+/g);
-    return m ? m.slice(0, 3).map(Number) : [22, 24, 29];
-  }
-  function lireCouleurs() {
-    const cs = getComputedStyle(sec);
-    ['fg', 'bg', 'muted', 'faint', 'line', 'panel'].forEach(k => { coul[k] = hex(cs.getPropertyValue('--' + k)); });
-  }
-  const css = (c, a) => (a === undefined ? 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')' : 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')');
-
-  /* ---------- modèle : calcul puis préparation du tracé ---------- */
-  function preparer() {
-    if (M) return;
-    M = window.HALLE.construire();
-    nB = M.barres.length; NS = M.NS;
-    const n3 = nB * NS * 3, n1 = nB * NS, faite = (M.NK - 1) / 2;
-    base = new Float32Array(n3); V = new Float32Array(n3); tV = new Float32Array(n3); deV = new Float32Array(n3);
-    C = new Float32Array(n1); tC = new Float32Array(n1); deC = new Float32Array(n1);
-    SX = new Float32Array(n1); SY = new Float32Array(n1); SD = new Float32Array(nB);
-    ordre = Array.from({ length: nB }, (_, i) => i);
-    debut = new Float32Array(nB); duree = new Float32Array(nB); inverse = new Uint8Array(nB);
-    M.barres.forEach((b, e) => {
-      const A = M.noeuds[b.i].p, B = M.noeuds[b.j].p;
-      for (let k = 0; k < NS; k++) for (let d = 0; d < 3; d++) base[(e * NS + k) * 3 + d] = A[d] + (B[d] - A[d]) * k / (NS - 1);
-      /* calendrier du montage : poteaux, traverses de la tête vers le faîtage, pannes, contreventements */
-      if (b.genre === 'poteau') { debut[e] = b.f * 0.13; duree[e] = 0.42; }
-      else if (b.genre === 'traverse') { debut[e] = b.f * 0.13 + 0.36 + (b.k < faite ? b.k - 1 : M.NK - 3 - b.k) * 0.11; duree[e] = 0.2; inverse[e] = b.k >= faite ? 1 : 0; }
-      else if (b.genre === 'panne') { debut[e] = 1.3 + b.f * 0.13 + Math.abs(b.k - faite) * 0.025; duree[e] = 0.3; }
-      else { debut[e] = 2.05 + (b.f ? 0.12 : 0) + (e % 6) * 0.025; duree[e] = 0.32; }
-      finMontage = Math.max(finMontage, debut[e] + duree[e]);
-    });
-    const s = M.stats;
-    id('m3-v').textContent = String(s.inconnues);
-    id('m3-s').textContent = 'inconnues, assemblées et résolues en ' + Math.max(1, Math.round(s.total)) + ' ms sur cet appareil';
-    id('halle-degrade').style.background = window.YB.palette.degradeCss(LUT, 14);
-  }
-  const periodeVisuelle = m => borne(m.T * 4, 1.2, 2.4);
-
-  /* ---------- choix d'un cas ---------- */
-  function choisir(cle, parVisiteur) {
-    preparer();
-    if (parVisiteur) st.choisi = true;
-    if (cle && cle[0] === 'M') M.modes();
-    deV.set(V); deC.set(C); st.deMix = st.mix;
-    st.cle = cle; st.e = reduce ? 1 : 0; st.ve = 0; st.tMode = 0;
-    afficher(); reveiller();
-  }
-  function afficher() {
-    const cle = st.cle, etiq = id('halle-etiq');
-    boutons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.cas === cle)));
-    const pose = (titre, suite, v1, s1, v2, s2, max) => {
-      etiq.textContent = '';
-      const b = doc.createElement('b'); b.textContent = titre; etiq.appendChild(b);
-      if (suite) etiq.appendChild(doc.createTextNode(' ' + suite));
-      id('m1-v').textContent = v1; id('m1-s').textContent = s1; id('m2-v').textContent = v2; id('m2-s').textContent = s2; id('halle-max').textContent = max;
-    };
-    if (!cle) return pose('Montage de l’ossature', '', '0 mm', 'structure à vide, avant chargement', '×1', 'pas encore de déformée à amplifier', 'max');
-    if (cle[0] === 'M') {
-      const m = M.modes()[+cle[1] - 1];
-      return pose(m.titre + '.', 'La structure oscille à sa fréquence propre.', fr(m.f, 2) + ' Hz', 'fréquence propre, soit une période de ' + fr(m.T, 2) + ' s',
-        '÷' + Math.round(periodeVisuelle(m) / m.T), 'vitesse de l’animation, ralentie pour suivre le mouvement', 'amplitude max');
-    }
-    const c = M.cas[cle];
-    pose(c.nom + '.', c.titre + '. Avant en gris, après en couleur.', fr(c.maxNoeud * 1e3, 1) + ' mm',
-      'déplacement maximal, ' + c.lieu + (c.critere ? ', soit ' + c.critere : ''), '×' + c.amp, 'amplification de la déformée à l’écran', fr(c.max * 1e3, 1) + ' mm');
-  }
-
-  /* ---------- animation ---------- */
-  function avancer(now) {
-    const dt = Math.min(0.034, dernier ? (now - dernier) / 1000 : 0.016);
-    dernier = now;
-    if (st.tMontage >= 0 && st.tMontage < finMontage + 0.3) {
-      st.tMontage += dt;
-      if (st.tMontage >= finMontage + 0.3 && !st.choisi) choisir('ELS', false);
-    }
-    if (st.cle && st.cle[0] === 'M') st.tMode += dt;
-    if (st.e !== 1 || st.ve !== 0) {
-      st.ve += (RAIDEUR * RAIDEUR * (1 - st.e) - 2 * AMORT * RAIDEUR * st.ve) * dt;
-      st.e += st.ve * dt;
-      if (Math.abs(1 - st.e) < 5e-4 && Math.abs(st.ve) < 5e-3) { st.e = 1; st.ve = 0; }
-    }
-    let vise = 0;
-    const cle = st.cle;
-    if (!cle) { tV.fill(0); tC.fill(0); }
-    else if (cle[0] === 'M') {
-      const m = M.modes()[+cle[1] - 1], s = AMP_MODE * (reduce ? 1 : Math.sin(2 * Math.PI * st.tMode / periodeVisuelle(m)));
-      for (let i = 0; i < tV.length; i++) tV[i] = m.d[i] * s;
-      tC.set(m.c); vise = 1;
-    } else {
-      const c = M.cas[cle];
-      for (let i = 0; i < tV.length; i++) tV[i] = c.d[i] * c.amp;
-      tC.set(c.c); vise = 1;
-    }
-    const e = st.e, ec = borne(e, 0, 1);
-    for (let i = 0; i < V.length; i++) V[i] = deV[i] + (tV[i] - deV[i]) * e;
-    for (let i = 0; i < C.length; i++) C[i] = deC[i] + (tC[i] - deC[i]) * ec;
-    st.mix = st.deMix + (vise - st.deMix) * ec;
-  }
-  const enMontage = () => st.tMontage >= 0 && st.tMontage < finMontage + 0.3;
-  const anime = () => st.visible && W > 2 && (st.glisse || enMontage() || st.e !== 1 || st.ve !== 0 || (!reduce && st.cle && st.cle[0] === 'M'));
-  function boucle(now) {
-    raf = 0;
-    if (!M) return;
-    avancer(now); dessiner();
-    if (anime()) reveiller(); else dernier = 0;
-  }
-  function reveiller() { if (!raf && M) raf = requestAnimationFrame(boucle); }
-
-  /* ---------- dessin ---------- */
-  function dessiner() {
-    if (!M || W < 2) return;
-    const cf = Math.cos(cam.az), sf = Math.sin(cam.az), ce = Math.cos(cam.el), se = Math.sin(cam.el);
-    const S = cam.S = Math.min(W * 0.97 / 44, Ht * 0.93 / (44 * se + 8.8 * ce + 1.5));
-    const ox = W / 2, oy = Ht / 2 + S * ce + 8, cx = CENTRE[0], cy = CENTRE[1], cz = CENTRE[2];
-    const P = (x, y, z) => { const X = x - cx, Y = y - cy, x1 = X * cf + Y * sf, y1 = Y * cf - X * sf; return [ox + S * x1, oy - S * ((z - cz) * ce + y1 * se)]; };
-    const milieu = (NS - 1) >> 1;
-    let pmin = Infinity, pmax = -Infinity;
-    for (let e = 0, i = 0; e < nB; e++) for (let k = 0; k < NS; k++, i++) {
-      const j = i * 3, X = base[j] + V[j] - cx, Y = base[j + 1] + V[j + 1] - cy, Z = base[j + 2] + V[j + 2] - cz, x1 = X * cf + Y * sf, y1 = Y * cf - X * sf;
-      SX[i] = ox + S * x1; SY[i] = oy - S * (Z * ce + y1 * se);
-      if (k === milieu) { const p = y1 * ce - Z * se; SD[e] = p; if (p < pmin) pmin = p; if (p > pmax) pmax = p; }
-    }
-    ordre.sort((a, b) => SD[b] - SD[a]);
-    const ech = borne(S / 13, 0.62, 1.4), mix = st.mix, ink = coul.fg;
-
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, W, Ht);
-    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    sol(P, ech);
-
-    /* avant : ossature non déformée, en gris */
-    if (mix > 0.02) {
-      ctx.globalAlpha = Math.min(1, mix * 1.2); ctx.strokeStyle = css(coul.faint); ctx.lineWidth = 0.9 * ech;
-      ctx.beginPath();
-      for (let e = 0; e < nB; e++) {
-        const a = e * NS * 3, b = (e * NS + NS - 1) * 3, p = P(base[a], base[a + 1], base[a + 2]), q = P(base[b], base[b + 1], base[b + 2]);
-        ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]);
-      }
-      ctx.stroke(); ctx.globalAlpha = 1;
-    }
-
-    /* halo de couleur, tracé en basse définition puis agrandi */
-    if (mix > 0.02) {
-      const hs = halo.width / W;
-      hctx.setTransform(hs, 0, 0, hs, 0, 0); hctx.clearRect(0, 0, W, Ht);
-      hctx.lineCap = 'round'; hctx.lineWidth = 15 * ech;
-      for (let p = 0; p < PAQUETS; p++) {
-        hctx.beginPath();
-        let plein = false;
-        for (let e = 0, i = 0; e < nB; e++, i++) for (let k = 0; k < NS - 1; k++, i++) {
-          if (Math.min(PAQUETS - 1, Math.floor((C[i] + C[i + 1]) / 2 * PAQUETS)) !== p) continue;
-          hctx.moveTo(SX[i], SY[i]); hctx.lineTo(SX[i + 1], SY[i + 1]); plein = true;
-        }
-        if (plein) { hctx.strokeStyle = window.YB.palette.css((p + 0.5) / PAQUETS, LUT); hctx.stroke(); }
-      }
-      ctx.globalAlpha = 0.34 * mix; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(halo, 0, 0, W, Ht); ctx.globalAlpha = 1;
-    }
-
-    /* après : ossature déformée, du fond vers l'observateur */
-    for (let n = 0; n < nB; n++) {
-      const e = ordre[n];
-      let r = 1;
-      if (st.tMontage < finMontage) { if (st.tMontage < 0) continue; r = borne((st.tMontage - debut[e]) / duree[e], 0, 1); if (r <= 0) continue; r = 1 - Math.pow(1 - r, 3); }
-      const o = e * NS, long = (NS - 1) * r, kmax = Math.floor(long), reste = long - kmax, inv = inverse[e];
-      const pres = pmax > pmin ? 1 - 2 * (SD[e] - pmin) / (pmax - pmin) : 0;
-      ctx.lineWidth = EPAISSEUR[M.barres[e].genre] * ech * (1 + 0.16 * pres);
-      for (let k = 0; k <= kmax && k < NS - 1; k++) {
-        if (k === kmax && reste < 1e-3) break;
-        const a = inv ? o + NS - 1 - k : o + k, b = inv ? a - 1 : a + 1, f = k === kmax ? reste : 1;
-        const t = Math.round(borne((C[a] + C[b]) / 2, 0, 1) * 255) * 3;
-        ctx.strokeStyle = 'rgb(' + Math.round(ink[0] + (LUT[t] - ink[0]) * mix) + ',' + Math.round(ink[1] + (LUT[t + 1] - ink[1]) * mix) + ',' + Math.round(ink[2] + (LUT[t + 2] - ink[2]) * mix) + ')';
-        ctx.beginPath(); ctx.moveTo(SX[a], SY[a]); ctx.lineTo(SX[a] + (SX[b] - SX[a]) * f, SY[a] + (SY[b] - SY[a]) * f); ctx.stroke();
-      }
-    }
-    charges(P, ech);
-    triedre(P, S);
-  }
-
-  /* dalle, files des portiques, bulles, cotes et appuis */
-  function sol(P, ech) {
-    const Lx = M.geo.portee, pas = M.geo.entraxe, nP = M.geo.nPortiques, Ly = pas * (nP - 1), d = 1.3;
-    const trace = pts => { ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); };
-    trace([[-d, -d], [Lx + d, -d], [Lx + d, Ly + d], [-d, Ly + d]].map(c => P(c[0], c[1], 0)));
-    ctx.fillStyle = css(coul.panel, 0.6); ctx.fill();
-    ctx.strokeStyle = css(coul.line); ctx.lineWidth = 1; ctx.stroke();
-    if (W >= 430) {
-      const gx = P(-6, Ly / 2, 0)[1] > P(Lx + 6, Ly / 2, 0)[1], gy = P(Lx / 2, -6, 0)[1] > P(Lx / 2, Ly + 6, 0)[1];
-      const xb = gx ? -4.6 : Lx + 4.6, yb = gy ? -4.6 : Ly + 4.6, xc = gx ? -2.5 : Lx + 2.5, yc = gy ? -2.5 : Ly + 2.5;
-      ctx.setLineDash([9, 3, 1.5, 3]); ctx.strokeStyle = css(coul.faint); ctx.lineWidth = 0.8;
-      ctx.beginPath();
-      for (let f = 0; f < nP; f++) { const a = P(gx ? Lx + d : -d, f * pas, 0), b = P(xb, f * pas, 0); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); }
-      [0, Lx].forEach(x => { const a = P(x, gy ? Ly + d : -d, 0), b = P(x, yb, 0); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); });
-      ctx.stroke(); ctx.setLineDash([]);
-      cote(P(xc, 0, 0), P(xc, Ly, 0), fr(Ly, 2));
-      cote(P(0, yc, 0), P(Lx, yc, 0), fr(Lx, 2));
-      for (let f = 0; f < nP; f++) bulle(P(xb, f * pas, 0), String(f + 1));
-      bulle(P(0, yb, 0), 'A'); bulle(P(Lx, yb, 0), 'B');
-    }
-    ctx.fillStyle = css(coul.fg);
-    M.noeuds.forEach(n => {
-      if (!n.bloque) return;
-      const a = 0.48;
-      trace([[-a, -a], [a, -a], [a, a], [-a, a]].map(c => P(n.p[0] + c[0], n.p[1] + c[1], 0)));
-      ctx.fill();
-    });
-  }
-  function bulle(p, texte) {
-    ctx.beginPath(); ctx.arc(p[0], p[1], 8.5, 0, 2 * Math.PI);
-    ctx.fillStyle = css(coul.bg); ctx.fill();
-    ctx.strokeStyle = css(coul.muted); ctx.lineWidth = 0.9; ctx.stroke();
-    ctx.fillStyle = css(coul.fg); ctx.font = '500 10px ' + POLICE; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(texte, p[0], p[1] + 0.5);
-  }
-  function cote(a, b, texte) {
-    ctx.strokeStyle = css(coul.muted); ctx.lineWidth = 0.9;
-    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
-    [a, b].forEach(p => { ctx.moveTo(p[0] - 3.5, p[1] + 3.5); ctx.lineTo(p[0] + 3.5, p[1] - 3.5); });
-    ctx.stroke();
-    /* texte aligné sur la ligne de cote, posé du côté du bâtiment */
-    let ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
-    if (Math.cos(ang) < 0) ang += Math.PI;
-    ctx.save();
-    ctx.translate((a[0] + b[0]) / 2, (a[1] + b[1]) / 2); ctx.rotate(ang);
-    ctx.font = '500 10.5px ' + POLICE; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-    ctx.fillStyle = css(coul.muted); ctx.fillText(texte, 0, -4.5);
-    ctx.restore();
-  }
-  function fleche(a, b, t) {
-    const dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l, c = 6.5 * t;
-    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0] - ux * c * 0.8, b[1] - uy * c * 0.8); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(b[0], b[1]); ctx.lineTo(b[0] - ux * c - uy * c * 0.42, b[1] - uy * c + ux * c * 0.42); ctx.lineTo(b[0] - ux * c + uy * c * 0.42, b[1] - uy * c - ux * c * 0.42); ctx.closePath(); ctx.fill();
-  }
-  /* flèches des charges du cas affiché */
-  function charges(P, ech) {
-    const cle = st.cle;
-    if (!cle || cle[0] === 'M') return;
-    const Lx = M.geo.portee, pas = M.geo.entraxe, nP = M.geo.nPortiques, a = borne(st.e, 0, 1);
-    ctx.globalAlpha = a; ctx.strokeStyle = css(coul.fg); ctx.fillStyle = css(coul.fg); ctx.lineWidth = 1.15 * ech;
-    const recul = (1 - a) * 1.2;
-    if (cle === 'W1') for (let f = 0; f < nP; f++) fleche(P(-3.7 - recul, f * pas, 3.7), P(-0.55 - recul, f * pas, 3.7), ech);
-    else if (cle === 'W2') [0, 1, 2, 3, 4, 5, 6].forEach(k => fleche(P(k * Lx / 6, -3.7 - recul, 3.4), P(k * Lx / 6, -0.55 - recul, 3.4), ech));
-    else for (let f = 0; f < nP; f++) fleche(P(Lx / 2, f * pas, M.geo.hFaitage + 3.1 + recul), P(Lx / 2, f * pas, M.geo.hFaitage + 0.75 + recul), ech);
-    ctx.globalAlpha = 1;
-  }
-  function triedre(P, S) {
-    if (W < 430) return;
-    const o = P(CENTRE[0], CENTRE[1], CENTRE[2]), x0 = 30, y0 = Ht - 30;
-    ctx.strokeStyle = css(coul.muted); ctx.fillStyle = css(coul.muted); ctx.lineWidth = 1; ctx.font = '500 9.5px ' + POLICE; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    [['X', 1, 0, 0], ['Y', 0, 1, 0], ['Z', 0, 0, 1]].forEach(([nom, x, y, z]) => {
-      const p = P(CENTRE[0] + x, CENTRE[1] + y, CENTRE[2] + z), dx = (p[0] - o[0]) / S * 20, dy = (p[1] - o[1]) / S * 20;
-      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + dx, y0 + dy); ctx.stroke();
-      ctx.fillText(nom, x0 + dx * 1.42, y0 + dy * 1.42);
-    });
-  }
-
-  /* ---------- montage, taille, événements ---------- */
-  function lancerMontage() {
-    preparer();
-    st.vu = true; st.choisi = false; st.cle = null; st.e = 1; st.ve = 0; st.mix = 0; st.deMix = 0;
-    V.fill(0); C.fill(0); deV.fill(0); deC.fill(0);
-    if (reduce) { st.tMontage = finMontage + 1; choisir('ELS', false); }
-    else { st.tMontage = 0; afficher(); reveiller(); }
-  }
-  function taille() {
-    const r = cv.getBoundingClientRect();
-    if (r.width < 2) { W = 0; return; }
-    W = r.width; Ht = r.height; dpr = Math.min(2, window.devicePixelRatio || 1);
-    cv.width = Math.round(W * dpr); cv.height = Math.round(Ht * dpr);
-    halo.width = Math.max(1, Math.round(W / 6)); halo.height = Math.max(1, Math.round(Ht / 6));
-    if (M) dessiner();
-  }
-  boutons.forEach(b => b.addEventListener('click', () => choisir(b.dataset.cas, true)));
-  id('halle-rejouer').addEventListener('click', lancerMontage);
-
-  let px = 0, py = 0;
-  cv.addEventListener('pointerdown', ev => { st.glisse = true; px = ev.clientX; py = ev.clientY; try { cv.setPointerCapture(ev.pointerId); } catch (err) { /* sans capture */ } reveiller(); });
-  cv.addEventListener('pointermove', ev => {
-    if (!st.glisse) return;
-    cam.az -= (ev.clientX - px) * 0.008; cam.el = borne(cam.el + (ev.clientY - py) * 0.005, 0.16, 1.05);
-    px = ev.clientX; py = ev.clientY; reveiller();
-  });
-  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => cv.addEventListener(t, () => { st.glisse = false; }));
-  cv.addEventListener('keydown', ev => {
-    if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
-    ev.preventDefault(); cam.az += ev.key === 'ArrowLeft' ? 0.14 : -0.14;
-    if (M) { if (raf) return; avancer(performance.now()); dessiner(); }
-  });
-
-  lireCouleurs();
-  doc.addEventListener('yb-theme', () => { lireCouleurs(); if (M) dessiner(); });
-  if (window.ResizeObserver) new ResizeObserver(taille).observe(cv); else addEventListener('resize', taille);
-  taille();
-  if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(() => { if (M) dessiner(); });
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(es => { if (es.some(e => e.isIntersecting) && !M) { preparer(); afficher(); dessiner(); } }, { rootMargin: '900px 0px' }).observe(cv);
-    new IntersectionObserver(es => es.forEach(en => {
-      st.visible = en.isIntersecting;
-      if (!st.visible) return;
-      if (!st.vu && en.intersectionRatio >= 0.3) lancerMontage();
-      reveiller();
-    }), { threshold: [0, 0.3] }).observe(cv);
-  } else { st.visible = true; lancerMontage(); }
 })();
 </script>
 <script>
@@ -2220,6 +1437,403 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
       px = x; py = y; pt = t;
     }, { passive: true });
   }
+})();
+</script>
+<script>
+/* ============================================================================
+   Mini Youssef : une figurine qui accueille le visiteur et l'accompagne pendant la visite.
+   Elle saute sur la poutre de la couverture, dont elle devient la charge P, y suit le curseur ou le doigt,
+   puis longe le cartouche du bas de page et dit un mot sur chaque planche.
+   ========================================================================== */
+(function () {
+  'use strict';
+  const doc = document, YB = window.YB = window.YB || {};
+  const borne = (v, a, b) => Math.min(b, Math.max(a, v));
+  const f2 = v => String(Math.round(v * 100) / 100);
+
+  /* ---------- le dessin : casque blanc, gilet jaune, barbe courte ---------- */
+  const VB_L = 64, VB_H = 92, PIED = 88.6;                  /* ligne des semelles dans le dessin */
+  function creer() {
+    const PEAU = '#e7b895', PEAU2 = '#c48d6a', POIL = '#2a2320', PULL = '#f1ebdf', GILET = '#f2b705', BANDE = '#f6f7f9', CASQUE = '#ffffff', CASQUE2 = '#dfe5ec';
+    const jambe = (x, cote) => {
+      const bx = cote < 0 ? x - 2.2 : x - 0.2;
+      return '<rect class="t" x="' + x + '" y="61" width="9.4" height="19" rx="3.4" fill="var(--g-pant)"/>' +
+        '<rect class="t" x="' + bx + '" y="77.4" width="11.8" height="9.6" rx="3.6" fill="var(--g-botte)"/>' +
+        '<rect x="' + (bx - 0.2) + '" y="85.6" width="12.2" height="3" rx="1.4" fill="var(--g-semelle)"/>';
+    };
+    const bras = x => '<rect class="t" x="' + x + '" y="41.5" width="8.6" height="19.6" rx="4.3" fill="' + PULL + '"/>' +
+      '<circle class="t" cx="' + (x + 4.3) + '" cy="61.8" r="4.1" fill="' + PEAU + '"/>';
+    const boite = doc.createElement('div');
+    boite.innerHTML = '<svg class="g-svg" viewBox="0 0 ' + VB_L + ' ' + VB_H + '" aria-hidden="true" focusable="false">' +
+      '<ellipse class="g-ombre" cx="32" cy="89.4" rx="14" ry="2.3"/>' +
+      '<g class="g-tout">' +
+      '<g class="g-jg">' + jambe(21.2, -1) + '</g><g class="g-jd">' + jambe(33.4, 1) + '</g>' +
+      '<g class="g-corps">' +
+      '<g class="g-bg">' + bras(12.4) + '</g><g class="g-bd">' + bras(43) + '</g>' +
+      '<clipPath id="g-torse"><rect x="17.6" y="39.6" width="28.8" height="27" rx="9.5"/></clipPath>' +
+      '<rect x="17.6" y="39.6" width="28.8" height="27" rx="9.5" fill="' + GILET + '"/>' +
+      '<g clip-path="url(#g-torse)">' +
+      '<path d="M25.2 38.6L32 52L38.8 38.6Z" fill="' + PULL + '"/>' +
+      '<rect x="16" y="54" width="32" height="3.3" fill="' + BANDE + '"/><rect x="16" y="59.6" width="32" height="3.3" fill="' + BANDE + '"/>' +
+      '<path class="t" d="M25.2 38.6L32 52L38.8 38.6M32 52V68" fill="none" style="stroke-width:1.1px"/>' +
+      '</g>' +
+      '<rect class="t" x="17.6" y="39.6" width="28.8" height="27" rx="9.5" fill="none"/>' +
+      '<g class="g-tete">' +
+      '<rect x="26" y="37.4" width="12" height="4.6" rx="2.3" fill="#16181d"/>' +
+      '<circle class="t" cx="15.4" cy="27" r="3" fill="' + PEAU + '"/><circle class="t" cx="48.6" cy="27" r="3" fill="' + PEAU + '"/>' +
+      '<ellipse class="t" cx="32" cy="25.6" rx="16" ry="14.6" fill="' + PEAU + '"/>' +
+      '<path d="M16.1 27C19.4 33.4 26 31.7 32 31.7C38 31.7 44.6 33.4 47.9 27A16 14.6 0 0 1 16.1 27Z" fill="' + POIL + '"/>' +
+      '<path d="M17.4 19.4L20.6 19.4L19.6 28L16.1 27.6Z M46.6 19.4L43.4 19.4L44.4 28L47.9 27.6Z" fill="' + POIL + '"/>' +
+      '<ellipse cx="32" cy="25.6" rx="16" ry="14.6" fill="none" class="t"/>' +
+      '<g class="g-visage">' +
+      '<path d="M21.9 23.3Q25.3 21.3 28.7 22.9M35.3 22.9Q38.7 21.3 42.1 23.3" fill="none" stroke="' + POIL + '" stroke-width="1.8" stroke-linecap="round"/>' +
+      '<g class="g-yeux"><ellipse cx="25.4" cy="26.9" rx="2.1" ry="2.7" fill="#16181d"/><ellipse cx="38.6" cy="26.9" rx="2.1" ry="2.7" fill="#16181d"/>' +
+      '<circle cx="26.1" cy="25.9" r=".8" fill="#fff"/><circle cx="39.3" cy="25.9" r=".8" fill="#fff"/></g>' +
+      '<path d="M30.5 29.7Q32 31.1 33.5 29.7" fill="none" stroke="' + PEAU2 + '" stroke-width="1.3" stroke-linecap="round"/>' +
+      '<path d="M27.7 34.3Q32 38.8 36.3 34.3Q32 35.7 27.7 34.3Z" fill="#fff"/>' +
+      '</g>' +
+      '<path class="t" d="M13.8 17C13.8 5.6 21.4 1.8 32 1.8C42.6 1.8 50.2 5.6 50.2 17Z" fill="' + CASQUE + '"/>' +
+      '<path d="M28.7 2.3Q32 1.2 35.3 2.3L35.3 15.4L28.7 15.4Z" fill="' + CASQUE2 + '"/>' +
+      '<rect class="t" x="10.8" y="14.6" width="42.4" height="5" rx="2.5" fill="' + CASQUE + '"/>' +
+      '</g></g></g></svg>';
+    const svg = boite.firstElementChild, q = s => svg.querySelector(s);
+    const e = { tout: q('.g-tout'), jg: q('.g-jg'), jd: q('.g-jd'), corps: q('.g-corps'), bg: q('.g-bg'), bd: q('.g-bd'), tete: q('.g-tete'), visage: q('.g-visage'), yeux: q('.g-yeux'), ombre: q('.g-ombre') };
+    /* p : phase et amplitude de marche, direction, salut, temps, regard, clignement, écrasement, hauteur de saut */
+    function poser(p) {
+      const s = Math.sin(p.phase), m = p.marche, d = p.dir || 0, t = p.t || 0;
+      const ecr = p.ecrase || 0;
+      e.tout.setAttribute('transform', 'translate(32 ' + PIED + ') scale(' + f2(1 + 0.16 * ecr) + ' ' + f2(1 - 0.2 * ecr) + ') translate(-32 ' + (-PIED) + ')');
+      e.jg.setAttribute('transform', 'translate(' + f2(m * s * 1.5 * d) + ' ' + f2(-m * Math.max(0, s) * 5.4) + ') rotate(' + f2(m * s * 9 * d) + ' 26 64)');
+      e.jd.setAttribute('transform', 'translate(' + f2(-m * s * 1.5 * d) + ' ' + f2(-m * Math.max(0, -s) * 5.4) + ') rotate(' + f2(-m * s * 9 * d) + ' 38 64)');
+      e.corps.setAttribute('transform', 'translate(0 ' + f2(-m * Math.abs(s) * 1.7) + ') rotate(' + f2(m * (s * 3.4 + d * 4.5) + (p.penche || 0)) + ' 32 66)');
+      const repos = (1 - m) * Math.sin(t * 1.7) * 1.6, sal = p.salut || 0;
+      e.bg.setAttribute('transform', 'rotate(' + f2(m * s * 21 + repos + (p.vol || 0) * 34) + ' 16.7 44.6)');
+      const marcheD = -m * s * 21 - repos - (p.vol || 0) * 34, saluer = -143 + Math.sin(t * 12.5) * 17;
+      e.bd.setAttribute('transform', 'rotate(' + f2(marcheD + (saluer - marcheD) * sal) + ' 47.3 44.6)');
+      e.tete.setAttribute('transform', 'rotate(' + f2(m * d * 3 + (p.rx || 0) * 2.2 + sal * -3) + ' 32 40)');
+      e.visage.setAttribute('transform', 'translate(' + f2((p.rx || 0) * 1.5) + ' ' + f2((p.ry || 0) * 0.9) + ')');
+      const k = 1 - 0.9 * (p.clign || 0);
+      e.yeux.setAttribute('transform', 'translate(0 ' + f2(26.9 * (1 - k)) + ') scale(1 ' + f2(k) + ')');
+      const haut = borne((p.haut || 0) / 150, 0, 0.65);
+      e.ombre.setAttribute('rx', f2(14 * (1 - haut))); e.ombre.style.opacity = f2(0.16 * (1 - haut));
+    }
+    poser({ phase: 0, marche: 0 });
+    return { svg, poser };
+  }
+  YB.figurine = { creer, PIED, VB_L, VB_H };
+
+  /* ---------- le comportement ---------- */
+  const barre = doc.querySelector('.barre');
+  if (!barre || !doc.body || !window.requestAnimationFrame) return;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const souris = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const scene = doc.getElementById('scene-poutre'), figure = scene ? scene.closest('.fig-console') : null;
+  const C = () => (!reduce && YB.console && YB.console.pret ? YB.console : null);
+
+  const REPLIQUES = {
+    profil: 'Ici, je me présente en quelques lignes.',
+    sommaire: 'Choisissez une planche, je vous y retrouve.',
+    'bayti-2022': 'Mon tout premier chantier.',
+    'bayti-2023': 'Un bâtiment R+3, suivi des fondations à la dalle.',
+    jgh: 'Du béton, des granulats et beaucoup d’éprouvettes.',
+    'labo-control': 'Sondages sur site, puis essais au laboratoire.',
+    'tanger-med': 'Ici, j’ai dimensionné la charpente d’une usine.',
+    maquette: 'Une villa en maquette, faite à la main.',
+    civilis: 'Le club de génie civil que j’ai présidé.',
+    'best-speaker': 'Trois participations à The Best Speaker.',
+    presentations: 'Deux présentations qui m’ont marqué.',
+    contact: 'Merci pour la visite. Écrivez-moi quand vous voulez.'
+  };
+  const ACCUEIL = 'Bonjour, je suis le mini Youssef. Je vous accompagne pendant la visite.';
+
+  const racine = doc.createElement('div'), corps = doc.createElement('div'), clic = doc.createElement('button');
+  const bulle = doc.createElement('div'), bTexte = doc.createElement('p'), bBouton = doc.createElement('button'), bPointe = doc.createElement('i');
+  const fig = creer();
+  racine.className = 'guide'; racine.id = 'guide'; racine.setAttribute('aria-hidden', 'true');
+  corps.className = 'guide-corps'; clic.className = 'guide-clic'; clic.type = 'button'; clic.tabIndex = -1;
+  bulle.className = 'guide-bulle'; bBouton.type = 'button'; bBouton.tabIndex = -1; bBouton.textContent = 'Me masquer'; bBouton.hidden = true; bPointe.className = 'guide-pointe';
+  corps.appendChild(fig.svg); corps.appendChild(clic);
+  bulle.appendChild(bTexte); bulle.appendChild(bBouton); bulle.appendChild(bPointe);
+  racine.appendChild(corps); racine.appendChild(bulle); doc.body.appendChild(racine);
+  YB.guide = { present: true };
+
+  const GRAV = 2300;
+  const g = {
+    lieu: 'absent',                                         /* absent, air, poutre, barre, parti */
+    x: -200, y: -200, t: 0.25, v: 0, dir: 1, marche: 0, phase: 0, h: 0, vh: 0,
+    cibleX: null, cibleT: null, forceX: null, apresMarche: null, sauteArrivee: false, doigt: false,
+    finSalut: 0, salut: 0, debClign: -1e9, ecrase: 0, tourne: 0, rx: 0, ry: 0, vol: 0,
+    air: null, sx: null, sy: null, defile: 0, finAccueil: 0, surPage: false, L: 50, H: 72, bl: 0, bh: 0, cote: '', yPage: window.scrollY, vPage: 0
+  };
+  let raf = 0, dernier = 0, minuteurBulle = 0;
+  const reveiller = () => { if (!raf && g.lieu !== 'parti') raf = requestAnimationFrame(pas); };
+  const mesurer = () => { g.L = corps.offsetWidth || 50; g.H = corps.offsetHeight || 72; };
+  const solBarre = () => barre.getBoundingClientRect().top + 1;
+  const marge = () => Math.max(24, g.L * 0.62);
+  function praticable() {                                    /* la poutre est-elle à l'écran, avec la place de s'y tenir ? */
+    const c = C();
+    if (!c) return false;
+    const y = c.yEcran(0.5);
+    return y > g.H + 40 && y < solBarre() - 80;
+  }
+
+  /* ---------- parole ---------- */
+  function dire(texte, duree, action) {
+    bTexte.textContent = texte; bBouton.hidden = !action;
+    bulle.classList.add('on'); bulle.classList.toggle('active', !!action);
+    g.bl = bulle.offsetWidth; g.bh = bulle.offsetHeight;
+    clearTimeout(minuteurBulle); minuteurBulle = setTimeout(taire, duree);
+    placer(); reveiller();
+  }
+  function taire() { clearTimeout(minuteurBulle); bulle.classList.remove('on', 'active'); }
+  function accueillir() {
+    const now = performance.now();
+    g.finSalut = now + 2100; g.finAccueil = now + 5400;
+    dire(ACCUEIL, 5400, false);
+  }
+
+  /* ---------- placement à l'écran ---------- */
+  function placer() {
+    const surPage = g.lieu === 'poutre';                    /* sur la poutre, la figurine défile avec la page */
+    if (surPage !== g.surPage) { g.surPage = surPage; racine.classList.toggle('sur-page', surPage); }
+    const ox = surPage ? window.scrollX : 0, oy = surPage ? window.scrollY : 0;
+    corps.style.transform = 'translate3d(' + f2(g.x + ox - g.L / 2) + 'px,' + f2(g.y + oy - g.H * PIED / VB_H) + 'px,0)' + (g.tourne ? ' rotate(' + f2(g.tourne) + 'deg)' : '');
+    if (!bulle.classList.contains('on')) return;
+    const W = doc.documentElement.clientWidth, tete = g.y - g.H * 0.97;
+    let bx = borne(g.x - g.bl / 2, 8, Math.max(8, W - g.bl - 8)), by = tete - g.bh - 13, cote = '';
+    if (by < 6) {                                           /* pas de place au-dessus : à côté de la tête */
+      const droite = g.x + g.L / 2 + 11, gauche = g.x - g.L / 2 - 11 - g.bl;
+      by = Math.max(6, g.y - g.H * 0.66 - g.bh / 2);
+      if (droite + g.bl <= W - 8) { bx = droite; cote = 'a-droite'; }
+      else if (gauche >= 8) { bx = gauche; cote = 'a-gauche'; }
+      else { bx = borne(g.x - g.bl / 2, 8, Math.max(8, W - g.bl - 8)); by = g.y + 13; cote = 'dessous'; }
+    }
+    if (cote !== g.cote) { if (g.cote) bulle.classList.remove(g.cote); if (cote) bulle.classList.add(cote); g.cote = cote; }
+    bulle.style.transform = 'translate3d(' + f2(bx + ox) + 'px,' + f2(by + oy) + 'px,0)';
+    bulle.style.setProperty('--px', f2(borne(g.x - bx, 14, g.bl - 14)) + 'px');
+    bulle.style.setProperty('--py', f2(borne(g.y - g.H * 0.66 - by, 12, g.bh - 12)) + 'px');
+  }
+
+  /* ---------- sauts ---------- */
+  function bondir(v) { if (g.lieu !== 'poutre' && g.lieu !== 'barre') return; if (g.h === 0 && g.vh === 0) { g.vh = v; g.h = 0.01; reveiller(); } }
+  function chuter(dt) {                                      /* renvoie la vitesse d'impact à l'atterrissage, sinon 0 */
+    if (g.h === 0 && g.vh === 0) return 0;
+    g.vh -= GRAV * dt; g.h += g.vh * dt;
+    if (g.h > 0) return 0;
+    const impact = -g.vh;
+    g.h = 0; g.vh = 0; g.ecrase = Math.min(1, impact / 620);
+    return impact;
+  }
+  function sauterVers(lieu, now) {
+    const c = C(), W = doc.documentElement.clientWidth;
+    if (lieu === 'poutre' && c) {
+      const t = borne(c.tDepuis(g.x), 0.03, 0.97);
+      g.air = { vers: 'poutre', t, x0: g.x, y0: g.y, t0: now, duree: 760, H: 96, vrille: 0 };
+    } else {
+      const pousse = souris && g.sx !== null ? borne(g.sx - g.x, -140, 140) : 36;
+      g.air = { vers: 'barre', x1: borne(g.x + pousse, marge(), W - marge()), x0: g.x, y0: g.y, t0: now, duree: 820, H: 64, vrille: pousse >= 0 ? 1 : -1 };
+    }
+    g.lieu = 'air'; g.h = 0; g.vh = 0; g.cibleX = null; g.forceX = null;
+  }
+  function atterrir(a) {
+    const c = C();
+    g.air = null; g.tourne = 0; g.vol = 0; g.ecrase = 1; g.v = 0;
+    if (a.vers === 'poutre' && c) {
+      g.lieu = 'poutre'; g.t = a.t;
+      c.porter(g.t, c.POIDS); c.choc(a.chute ? 1.25 : 0.95);
+    } else { g.lieu = 'barre'; g.yPage = window.scrollY; g.vPage = 0; }
+    if (a.apres) a.apres();
+  }
+
+  /* ---------- boucle ---------- */
+  function pas(now) {
+    raf = 0;
+    const dt = borne(dernier ? (now - dernier) / 1000 : 0.016, 0.001, 0.04);
+    dernier = now;
+    const c = C(), W = doc.documentElement.clientWidth;
+    let actif = false, vit = 0, surPlace = false;
+
+    if (g.lieu === 'air') {
+      const a = g.air, u = borne((now - a.t0) / a.duree, 0, 1), e = u * u * (3 - 2 * u);
+      let x1 = a.x1, y1 = solBarre();
+      if (a.vers === 'poutre' && c) { x1 = c.xEcran(a.t); y1 = c.yEcran(a.t); }
+      if (a.chute) { g.x = x1; g.y = a.y0 + (y1 - a.y0) * u * u; }
+      else { g.x = a.x0 + (x1 - a.x0) * e; g.y = a.y0 + (y1 - a.y0) * e - a.H * 4 * u * (1 - u); }
+      g.tourne = a.vrille ? 360 * e * a.vrille : 0;
+      g.vol = Math.sin(Math.PI * u);
+      if (!a.chute && Math.abs(x1 - a.x0) > 4) g.dir = Math.sign(x1 - a.x0);
+      if (u >= 1) atterrir(a);
+      actif = true;
+    } else if (g.lieu === 'poutre') {
+      if (!c || !praticable()) {
+        if (c) { g.x = c.xEcran(g.t); g.y = c.yEcran(g.t) - g.h; c.porter(g.t, 0); }
+        sauterVers('barre', now);
+      } else {
+        const long = c.longueur() || 1, vmax = borne(long * 0.62, 150, 330);
+        if (g.cibleT !== null) {
+          const d = (g.cibleT - g.t) * long;
+          if (Math.abs(d) < 2.5) { g.cibleT = null; g.v = 0; if (g.sauteArrivee) { g.sauteArrivee = false; bondir(540); } }
+          else { g.v = borne(d * 7, -vmax, vmax); g.t = borne(g.t + g.v * dt / long, 0, 1); }
+        } else g.v = 0;
+        vit = Math.abs(g.v);
+        const impact = chuter(dt);
+        if (impact) c.choc(impact * 0.0012 * (0.55 + 0.45 * g.t));
+        c.porter(g.t, g.h > 1 ? 0 : c.POIDS);
+        g.x = c.xEcran(g.t); g.y = c.yEcran(g.t) - g.h;
+      }
+      actif = vit > 0 || g.h > 0 || g.vh !== 0 || now - g.defile < 220 || g.lieu === 'air';
+    } else if (g.lieu === 'barre') {
+      const vmax = souris ? 320 : 210, m = marge();
+      let cible = null;
+      if (g.forceX !== null) cible = g.forceX;
+      else if (souris) {
+        if (g.sx !== null) { const d = Math.abs(g.sx - g.x); if (d > (g.cibleX === null ? 56 : 16)) cible = borne(g.sx, m, W - m); }
+      } else {
+        const maxi = Math.max(1, doc.documentElement.scrollHeight - window.innerHeight);
+        const p = m + (W - 2 * m) * borne(window.scrollY / maxi, 0, 1);
+        if (Math.abs(p - g.x) > (g.cibleX === null ? 7 : 1.5)) cible = p;
+      }
+      g.cibleX = cible;
+      if (cible === null) g.v = 0;
+      else {
+        const d = cible - g.x;
+        g.v = Math.abs(d) < 1.5 ? 0 : borne(d * 6.5, -vmax, vmax);
+        g.x += g.v * dt;
+        if (g.forceX !== null && Math.abs(d) < 2) { g.forceX = null; g.v = 0; const f = g.apresMarche; g.apresMarche = null; if (f) f(); }
+      }
+      vit = Math.abs(g.v);
+      const yPage = window.scrollY, vPage = (yPage - g.yPage) / dt;
+      g.yPage = yPage;
+      g.vPage += (vPage - g.vPage) * (1 - Math.exp(-dt * 10));
+      if (vit === 0 && Math.abs(g.vPage) > 40) {             /* la page défile : il marche sur place, dans le sens de la visite */
+        vit = Math.min(Math.abs(g.vPage) * 0.22, 240); g.dir = g.vPage > 0 ? 1 : -1; surPlace = true;
+      }
+      chuter(dt);
+      g.y = solBarre() - g.h;
+      if (c && g.forceX === null && g.h === 0 && now - g.defile > 380 && praticable()) sauterVers('poutre', now);
+      actif = vit > 0 || g.h > 0 || g.vh !== 0 || g.lieu === 'air' || now - g.defile < 460 || Math.abs(g.vPage) > 5;
+    }
+
+    /* pose */
+    if (vit > 8 && !surPlace) g.dir = Math.sign(g.v);
+    g.marche += ((vit > 8 ? 1 : 0) - g.marche) * (1 - Math.exp(-dt * 13));
+    g.phase += vit * dt * 2 * Math.PI / (g.H * 0.8);
+    if (g.marche < 0.02 && vit === 0) { g.marche = 0; g.phase = 0; }
+    const vSalut = now < g.finSalut ? 1 : 0;
+    g.salut += (vSalut - g.salut) * (1 - Math.exp(-dt * 11));
+    if (!vSalut && g.salut < 0.01) g.salut = 0;
+    g.ecrase *= Math.exp(-dt * 12); if (g.ecrase < 0.01) g.ecrase = 0;
+    const ec = (now - g.debClign) / 170, clign = ec >= 0 && ec < 1 ? 1 - Math.abs(2 * ec - 1) : 0;
+    let rx = 0, ry = 0;
+    if (g.marche > 0.3) rx = g.dir;
+    else if (souris && g.sx !== null) { rx = borne((g.sx - g.x) / 260, -1, 1); ry = borne((g.sy - (g.y - g.H * 0.72)) / 320, -1, 1); }
+    g.rx += (rx - g.rx) * (1 - Math.exp(-dt * 9)); g.ry += (ry - g.ry) * (1 - Math.exp(-dt * 9));
+    const etire = g.h > 0 ? -borne(Math.abs(g.vh) / 2600, 0, 0.3) : 0;
+    fig.poser({ phase: g.phase, marche: g.marche, dir: g.dir, salut: g.salut, t: now / 1000, rx: g.rx, ry: g.ry, clign, ecrase: g.ecrase + etire, haut: g.h, vol: g.vol });
+    placer();
+    actif = actif || g.marche > 0 || g.salut > 0 || g.ecrase > 0 || ec < 1 || now < g.finSalut || Math.abs(rx - g.rx) > 0.02 || Math.abs(ry - g.ry) > 0.02;
+    if (actif) reveiller(); else dernier = 0;
+  }
+
+  /* ---------- entrée, sortie ---------- */
+  function entrer() {
+    if (g.lieu !== 'absent') return;
+    const now = performance.now(), c = C();
+    mesurer();
+    racine.classList.add('la');
+    if (reduce) {                                            /* sans animation : immobile au bord du cartouche */
+      g.lieu = 'barre'; g.x = marge() + 6; g.y = solBarre();
+      fig.poser({ phase: 0, marche: 0 }); placer();
+      g.finAccueil = now + 5400; dire(ACCUEIL, 5400, false);
+      return;
+    }
+    if (c) { c.piloter(true); if (figure) figure.classList.add('avec-guide'); }
+    if (c && praticable()) {
+      g.lieu = 'air';
+      g.air = { vers: 'poutre', t: 0.25, chute: true, x0: c.xEcran(0.25), y0: -g.H - 40, t0: now, duree: 640, H: 0, vrille: 0, apres: accueillir };
+    } else {
+      g.lieu = 'barre'; g.x = -g.L; g.y = solBarre();
+      g.forceX = marge() + 54; g.apresMarche = accueillir;
+    }
+    reveiller();
+  }
+  function masquer() {
+    if (g.lieu === 'parti') return;
+    const c = C();
+    taire(); racine.classList.add('sort');
+    if (c) { if (g.lieu === 'poutre') c.porter(g.t, 0); c.piloter(false); }
+    if (figure) figure.classList.remove('avec-guide');
+    g.lieu = 'parti'; YB.guide.present = false;
+    setTimeout(() => { racine.hidden = true; }, 340);
+  }
+
+  /* ---------- écoute ---------- */
+  clic.addEventListener('click', () => {
+    if (g.lieu === 'air' || g.lieu === 'absent' || g.lieu === 'parti') return;
+    if (g.lieu === 'poutre') { bondir(540); return; }       /* sur la poutre, un clic le fait sauter */
+    if (!reduce) bondir(430);
+    enCours = ''; dire('Je vous suis jusqu’à la dernière planche.', 5200, true);
+  });
+  bBouton.addEventListener('click', masquer);
+  addEventListener('scroll', () => { g.defile = performance.now(); reveiller(); }, { passive: true });
+  addEventListener('resize', () => { mesurer(); if (reduce && g.lieu === 'barre') { g.x = marge() + 6; g.y = solBarre(); placer(); } reveiller(); }, { passive: true });
+  if (!reduce) {
+    doc.addEventListener('pointermove', ev => { if (ev.pointerType === 'mouse') { g.sx = ev.clientX; g.sy = ev.clientY; reveiller(); } }, { passive: true });
+    doc.documentElement.addEventListener('mouseleave', () => { g.sx = null; });
+    if (scene) {
+      const viser = ev => { const c = C(); return c && c.pilote() ? borne(c.tDepuis(ev.clientX), 0.012, 0.988) : null; };
+      scene.addEventListener('pointermove', ev => {
+        if (ev.pointerType !== 'mouse' && !g.doigt) return;
+        const t = viser(ev);
+        if (t !== null) { g.cibleT = t; reveiller(); }
+      });
+      scene.addEventListener('pointerdown', ev => {
+        if (ev.pointerType === 'mouse' && ev.button !== 0) return;
+        const t = viser(ev), c = C();
+        if (t === null) return;
+        g.cibleT = t;
+        if (ev.pointerType === 'mouse') bondir(540);
+        else { g.doigt = true; if (g.lieu === 'poutre' && Math.abs((t - g.t) * c.longueur()) < 14) bondir(540); else g.sauteArrivee = true; }
+        reveiller();
+      });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(n => scene.addEventListener(n, () => { g.doigt = false; }));
+    }
+  }
+
+  /* un mot par planche, une seule fois */
+  const dites = new Set();
+  let attente = 0, enCours = '';
+  function commenter(id) {
+    if (g.lieu === 'parti' || g.lieu === 'absent' || dites.has(id)) return;
+    const reste = g.finAccueil - performance.now();
+    if (reste > 0) { attente = setTimeout(() => commenter(id), reste + 400); return; }
+    dites.add(id); dire(REPLIQUES[id], 4400, false); enCours = id;
+  }
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => es.forEach(en => {
+      if (!en.isIntersecting) return;
+      const id = en.target.id;
+      clearTimeout(attente);
+      if (enCours && enCours !== id) { taire(); enCours = ''; }   /* on a changé de planche : le mot précédent s'efface */
+      if (REPLIQUES[id] && !dites.has(id)) attente = setTimeout(() => commenter(id), 850);
+    }), { rootMargin: '-40% 0px -55% 0px' });
+    doc.querySelectorAll('[data-pl]').forEach(s => io.observe(s));
+  }
+
+  /* clignement des yeux, de temps en temps */
+  if (!reduce) (function cligner() {
+    setTimeout(() => { if (g.lieu !== 'parti') { if (!doc.hidden) { g.debClign = performance.now(); reveiller(); } cligner(); } }, 2600 + Math.random() * 3400);
+  })();
+
+  /* la poutre rappelle la figurine après chaque image, pour que ses pieds restent posés dessus */
+  const c0 = C();
+  if (c0) c0.apres = () => { if (g.lieu === 'poutre') { g.x = c0.xEcran(g.t); g.y = c0.yEcran(g.t) - g.h; placer(); } };
+
+  /* entrée : après le tracé du diagramme de la couverture, sinon peu après le chargement */
+  if (c0 && scene && scene.classList.contains('vivante')) {
+    doc.addEventListener('yb-console-prete', () => setTimeout(entrer, 260), { once: true });
+    setTimeout(entrer, 6500);
+  } else setTimeout(entrer, 700);
 })();
 </script>
 </body>
