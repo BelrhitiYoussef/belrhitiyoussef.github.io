@@ -559,9 +559,11 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
 .g-svg .t { stroke: var(--g-trait); stroke-width: 1.5px; stroke-linejoin: round; stroke-linecap: round; }
 .g-ombre { fill: #000; opacity: .16; }
 .guide-clic {
-  position: absolute; left: 8%; top: 0; width: 84%; height: 72%; padding: 0; border: 0; background: none;
-  cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent;
+  position: absolute; left: 2%; top: 0; width: 96%; height: 86%; padding: 0; border: 0; background: none;
+  cursor: grab; pointer-events: auto; touch-action: none; -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
 }
+.guide.tenu .guide-clic { cursor: grabbing; }
 .guide-clic:focus { outline: none; }
 .guide-bulle {
   position: absolute; left: 0; top: 0; width: max-content; max-width: min(232px, calc(100vw - 24px));
@@ -664,7 +666,7 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
 </svg></div>
 <figcaption class="fig"><span class="fig-g"><span class="fig-titre"><b>FIG. 00</b> Console sous charge répartie q<span class="fig-eq" aria-hidden="true">|M(x)| = q·x²/2<span class="terme-p" id="terme-p"> + P·(x − a) pour x &gt; a</span></span></span>
 <span class="lecture js-only" aria-hidden="true"><span>Moment à l’encastrement <strong id="lect-m">×1,00</strong></span><span>Flèche en bout de console <strong id="lect-f">×1,00</strong></span></span></span>
-<span class="hint"><span class="js-only"><span class="sans-guide"><span class="h-souris">Passez le curseur sur la poutre, il devient une charge P. </span><span class="h-tactile">Posez le doigt sur la poutre, il devient une charge P. </span></span><span class="si-guide"><span class="h-souris">Le mini Youssef suit votre curseur sur la poutre, qui fléchit sous son poids P. Cliquez pour le faire sauter. </span><span class="h-tactile">Touchez la poutre, le mini Youssef vous y rejoint et elle fléchit sous son poids P. </span></span></span>Un nœud ouvre le stage correspondant.</span></figcaption></figure>
+<span class="hint"><span class="js-only"><span class="sans-guide"><span class="h-souris">Passez le curseur sur la poutre, il devient une charge P. </span><span class="h-tactile">Posez le doigt sur la poutre, il devient une charge P. </span></span><span class="si-guide"><span class="h-souris">Le mini Youssef suit votre curseur sur la poutre, qui fléchit sous son poids P. Cliquez pour le faire sauter, ou attrapez-le pour le poser ailleurs. </span><span class="h-tactile">Touchez la poutre, le mini Youssef vous y rejoint et elle fléchit sous son poids P. Vous pouvez aussi l’attraper du doigt et le poser ailleurs. </span></span></span>Un nœud ouvre le stage correspondant.</span></figcaption></figure>
 <h1 class="nom">Youssef Belrhiti</h1>
 <p class="role">Élève ingénieur en génie civil</p>
 <p class="ecole">École Marocaine des Sciences de l’Ingénieur (EMSI), Tanger</p>
@@ -1306,6 +1308,7 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
    Traits élastiques : chaque filet plein de la mise en page se comporte comme une poutre sur deux appuis.
    L'inertie du défilement la fait fléchir, le curseur qui la traverse la fait vibrer, puis elle s'amortit.
    Au repos, c'est la bordure d'origine qui est affichée : rien ne change tant que rien ne bouge.
+   La figurine du site peut aussi se poser dessus : le trait fléchit alors sous son poids.
    ========================================================================== */
 (function () {
   'use strict';
@@ -1313,7 +1316,7 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if (!window.requestAnimationFrame || !('IntersectionObserver' in window)) return;
   const NS = 'http://www.w3.org/2000/svg', MODES = 4, LIMITE = 8;
-  const G_DEFILEMENT = 0.05, G_PINCEMENT = 0.04;
+  const G_DEFILEMENT = 0.05, G_PINCEMENT = 0.04, G_POIDS = 4.6;
   const borne = (v, a, b) => Math.min(b, Math.max(a, v));
   const f1 = v => String(Math.round(v * 10) / 10);
 
@@ -1324,7 +1327,7 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
     svg.setAttribute('class', 'fil' + (haut ? ' fil-haut' : ''));
     svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('focusable', 'false');
     svg.appendChild(trace); h.appendChild(svg); h.classList.add('fil-hote');
-    fils.push({ h, trace, haut, y0: haut ? -1 : 0.75, w: 0, n: 0, sin: null, om: 0, gain: 0, q: new Float64Array(MODES), v: new Float64Array(MODES), vu: false, vif: false, rect: null });
+    fils.push({ h, trace, haut, y0: haut ? -1 : 0.75, w: 0, n: 0, sin: null, om: 0, gain: 0, q: new Float64Array(MODES), v: new Float64Array(MODES), qe: new Float64Array(MODES), charge: false, vu: false, vif: false, rect: null });
   });
   if (!fils.length) return;
 
@@ -1380,16 +1383,48 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
       for (let m = 0; m < MODES; m++) {                      /* oscillateur amorti, intégré exactement */
         const om = f.om * (m + 1), z = 0.13 + 0.05 * m, od = om * Math.sqrt(1 - z * z);
         const e = Math.exp(-z * om * dt), c = Math.cos(od * dt), s = Math.sin(od * dt), k = z * om / od;
-        const q = f.q[m], vq = f.v[m];
-        f.q[m] = e * (q * (c + k * s) + vq * s / od);
+        const q = f.q[m] - f.qe[m], vq = f.v[m];
+        f.q[m] = f.qe[m] + e * (q * (c + k * s) + vq * s / od);
         f.v[m] = e * (vq * (c - k * s) - q * om * om / od * s);
-        energie = Math.max(energie, Math.abs(f.q[m]), Math.abs(f.v[m]) / om);
+        energie = Math.max(energie, Math.abs(f.q[m] - f.qe[m]), Math.abs(f.v[m]) / om);
       }
-      if (energie < 0.12) calmer(f); else { tracer(f); actif = true; }
+      if (energie >= 0.12) { tracer(f); actif = true; }
+      else if (f.charge) { for (let m = 0; m < MODES; m++) { f.q[m] = f.qe[m]; f.v[m] = 0; } tracer(f); }   /* au repos, mais fléchi sous la charge */
+      else calmer(f);
     }
+    if (api.apres) api.apres();
     if (actif) raf = requestAnimationFrame(pas); else { dernier = 0; vPage = 0; }
   }
   const reveiller = () => { if (!raf) raf = requestAnimationFrame(pas); };
+
+  /* Interface offerte à la figurine (js/guide.js) : elle se pose sur un trait, qui fléchit sous son poids. */
+  const api = (window.YB = window.YB || {}).fils = {
+    apres: null,
+    trouver: el => fils.find(f => f.h === el) || null,
+    fleche(f, xi) {                                          /* déplacement vertical actuel du trait à l'abscisse relative xi */
+      if (!f.vif) return 0;
+      let y = 0;
+      for (let m = 0; m < MODES; m++) y += f.q[m] * Math.sin((m + 1) * Math.PI * xi);
+      return LIMITE * Math.tanh(y / LIMITE);
+    },
+    charger(f, xi, coup) {                                   /* charge ponctuelle posée en xi, avec un choc éventuel */
+      eveiller(f);
+      if (!f.vif) return;
+      const a = G_POIDS * borne(f.w / 700, 0.5, 1.15);
+      f.charge = true;
+      for (let m = 0; m < MODES; m++) {
+        const s = Math.sin((m + 1) * Math.PI * xi);
+        f.qe[m] = a * s / ((m + 1) * (m + 1));
+        f.v[m] += (coup || 0) * s;
+      }
+      reveiller();
+    },
+    decharger(f) {
+      if (!f.charge) return;
+      f.charge = false; f.qe.fill(0);
+      reveiller();
+    }
+  };
 
   addEventListener('scroll', () => { tDefile = performance.now(); rectsOk = false; reveiller(); }, { passive: true });
   addEventListener('resize', () => { rectsOk = false; fils.forEach(f => { if (f.vif) { calmer(f); } f.sin = null; }); }, { passive: true });
@@ -1434,6 +1469,8 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
    Mini Youssef : une figurine qui accueille le visiteur et l'accompagne pendant la visite.
    Elle saute sur la poutre de la couverture, dont elle devient la charge P, y suit le curseur ou le doigt,
    puis longe le cartouche du bas de page et dit un mot sur chaque planche.
+   On peut l'attraper à la souris ou au doigt et la lâcher ailleurs : elle retombe sur la poutre, sur un trait
+   plein de la page (qui fléchit sous son poids), sur le haut d'une photo, ou sinon sur le cartouche.
    ========================================================================== */
 (function () {
   'use strict';
@@ -1518,7 +1555,8 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const souris = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const scene = doc.getElementById('scene-poutre'), figure = scene ? scene.closest('.fig-console') : null;
-  const C = () => (!reduce && YB.console && YB.console.pret ? YB.console : null);
+  const C = () => (!reduce && YB.console && YB.console.pret ? YB.console : null);   /* la poutre de la couverture */
+  const F = () => (!reduce && YB.fils ? YB.fils : null);                            /* les traits élastiques */
 
   const REPLIQUES = {
     profil: 'Ici, je me présente en quelques lignes.',
@@ -1535,6 +1573,8 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
     contact: 'Merci pour la visite. Écrivez-moi quand vous voulez.'
   };
   const ACCUEIL = 'Bonjour, je suis le mini Youssef. Je vous accompagne pendant la visite.';
+  const CONSEIL = 'Vous pouvez m’attraper et me poser sur un trait ou sur une photo.';
+  const SUIVI = 'Je vous suis jusqu’à la dernière planche. Attrapez-moi pour me poser ailleurs.';
 
   const racine = doc.createElement('div'), corps = doc.createElement('div'), clic = doc.createElement('button');
   const bulle = doc.createElement('div'), bTexte = doc.createElement('p'), bBouton = doc.createElement('button'), bPointe = doc.createElement('i');
@@ -1547,15 +1587,29 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
   racine.appendChild(corps); racine.appendChild(bulle); doc.body.appendChild(racine);
   YB.guide = { present: true };
 
+  /* Supports où l'on peut le poser en le lâchant : les traits pleins de la page et le haut des photos. */
+  const supports = Array.from(doc.querySelectorAll('.pl-head, .topbar, .score-c, .chiffres, .photo')).map(el => ({ el, vu: !('IntersectionObserver' in window) }));
+  if ('IntersectionObserver' in window) {
+    const vus = new IntersectionObserver(es => es.forEach(en => { const s = supports.find(x => x.el === en.target); if (s) s.vu = en.isIntersecting; }), { rootMargin: '80px 0px' });
+    supports.forEach(s => vus.observe(s.el));
+  }
+  function ligneDe(el) {                                     /* ligne d'appui d'un support, en pixels écran */
+    const r = el.getBoundingClientRect();
+    if (r.width < 30 || r.height < 2) return null;
+    const dessous = el.matches('.pl-head, .topbar'), f = F();  /* filet placé sous le bloc, sinon bord supérieur */
+    return { x0: r.left, x1: r.right, w: r.width, y: dessous ? r.bottom - 1.5 : r.top, fil: f ? f.trouver(el) : null };
+  }
+
   const GRAV = 2300;
   const g = {
-    lieu: 'absent',                                         /* absent, air, poutre, barre, parti */
+    lieu: 'absent',                                         /* absent, air, tenu, chute, poutre, objet, barre, parti */
     x: -200, y: -200, t: 0.25, v: 0, dir: 1, marche: 0, phase: 0, h: 0, vh: 0,
     cibleX: null, cibleT: null, forceX: null, apresMarche: null, sauteArrivee: false, doigt: false,
     finSalut: 0, salut: 0, debClign: -1e9, ecrase: 0, tourne: 0, rx: 0, ry: 0, vol: 0,
-    air: null, sx: null, sy: null, defile: 0, finAccueil: 0, surPage: false, L: 50, H: 72, bl: 0, bh: 0, cote: '', yPage: window.scrollY, vPage: 0
+    air: null, sx: null, sy: null, defile: 0, finAccueil: 0, surPage: false, L: 50, H: 72, bl: 0, bh: 0, cote: '', yPage: window.scrollY, vPage: 0,
+    vx: 0, vy: 0, bal: 0, vBal: 0, sol: null, resteEnBas: false, attrape: false, pivot: ''
   };
-  let raf = 0, dernier = 0, minuteurBulle = 0;
+  let raf = 0, dernier = 0, minuteurBulle = 0, prise = null;
   const reveiller = () => { if (!raf && g.lieu !== 'parti') raf = requestAnimationFrame(pas); };
   const mesurer = () => { g.L = corps.offsetWidth || 50; g.H = corps.offsetHeight || 72; };
   const solBarre = () => barre.getBoundingClientRect().top + 1;
@@ -1580,12 +1634,18 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
     const now = performance.now();
     g.finSalut = now + 2100; g.finAccueil = now + 5400;
     dire(ACCUEIL, 5400, false);
+    if (!reduce) setTimeout(() => {                          /* un conseil, une fois, si le visiteur est encore en haut de page */
+      if (g.attrape || g.lieu === 'parti' || prise || bulle.classList.contains('on') || window.scrollY > 120) return;
+      dire(CONSEIL, 4800, false);
+    }, 6300);
   }
 
   /* ---------- placement à l'écran ---------- */
   function placer() {
-    const surPage = g.lieu === 'poutre';                    /* sur la poutre, la figurine défile avec la page */
+    const surPage = g.lieu === 'poutre' || g.lieu === 'objet';   /* posé sur la page, il défile avec elle */
     if (surPage !== g.surPage) { g.surPage = surPage; racine.classList.toggle('sur-page', surPage); }
+    const pivot = g.lieu === 'tenu' || g.lieu === 'chute' ? '50% 20%' : '50% 50%';   /* tenu, il pend sous la main */
+    if (pivot !== g.pivot) { g.pivot = pivot; corps.style.transformOrigin = pivot; }
     const ox = surPage ? window.scrollX : 0, oy = surPage ? window.scrollY : 0;
     corps.style.transform = 'translate3d(' + f2(g.x + ox - g.L / 2) + 'px,' + f2(g.y + oy - g.H * PIED / VB_H) + 'px,0)' + (g.tourne ? ' rotate(' + f2(g.tourne) + 'deg)' : '');
     if (!bulle.classList.contains('on')) return;
@@ -1605,14 +1665,20 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
   }
 
   /* ---------- sauts ---------- */
-  function bondir(v) { if (g.lieu !== 'poutre' && g.lieu !== 'barre') return; if (g.h === 0 && g.vh === 0) { g.vh = v; g.h = 0.01; reveiller(); } }
-  function chuter(dt) {                                      /* renvoie la vitesse d'impact à l'atterrissage, sinon 0 */
+  function bondir(v) { if (g.lieu !== 'poutre' && g.lieu !== 'barre' && g.lieu !== 'objet') return; if (g.h === 0 && g.vh === 0) { g.vh = v; g.h = 0.01; reveiller(); } }
+  function chuter(dt) {                                      /* petit saut sur place : renvoie la vitesse d'impact à l'atterrissage, sinon 0 */
     if (g.h === 0 && g.vh === 0) return 0;
     g.vh -= GRAV * dt; g.h += g.vh * dt;
     if (g.h > 0) return 0;
     const impact = -g.vh;
     g.h = 0; g.vh = 0; g.ecrase = Math.min(1, impact / 620);
     return impact;
+  }
+  function quitterSol() {                                    /* retire son poids de ce qui le portait */
+    const c = C(), f = F();
+    if (g.lieu === 'poutre' && c) c.porter(g.t, 0);
+    if (g.sol && g.sol.fil && f) f.decharger(g.sol.fil);
+    g.sol = null;
   }
   function sauterVers(lieu, now) {
     const c = C(), W = doc.documentElement.clientWidth;
@@ -1635,12 +1701,58 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
     if (a.apres) a.apres();
   }
 
+  /* ---------- pris en main, puis lâché ---------- */
+  function soulever() {
+    quitterSol();
+    g.lieu = 'tenu'; g.air = null; g.h = 0; g.vh = 0; g.v = 0; g.bal = 0; g.vBal = 0;
+    g.cibleX = null; g.cibleT = null; g.forceX = null; g.apresMarche = null; g.sauteArrivee = false;
+    g.attrape = true; g.finSalut = 0;
+    taire(); racine.classList.add('tenu');
+  }
+  function lacher(p, calme) {
+    racine.classList.remove('tenu');
+    g.lieu = 'chute';
+    g.vx = calme ? 0 : borne(p.vx, -1500, 1500); g.vy = calme ? 0 : borne(p.vy, -1700, 1500);
+    reveiller();
+  }
+  function solSous(y0, y1) {                                 /* premier appui rencontré en tombant de y0 à y1, à son abscisse */
+    let mieux = null;
+    const essai = (y, quoi) => { if (y >= y0 - 0.5 && y <= y1 && (!mieux || y < mieux.y)) { mieux = quoi; mieux.y = y; } };
+    const c = C();
+    if (c && praticable() && g.x >= c.xEcran(0) - 3 && g.x <= c.xEcran(1) + 3) {
+      const t = borne(c.tDepuis(g.x), 0.012, 0.988);
+      essai(c.yEcran(t), { type: 'poutre', t });
+    }
+    for (let i = 0; i < supports.length; i++) {
+      if (!supports[i].vu) continue;
+      const l = ligneDe(supports[i].el);
+      if (!l || g.x < l.x0 + 6 || g.x > l.x1 - 6 || l.y < g.H * 0.6) continue;
+      essai(l.y, { type: 'objet', el: supports[i].el, fil: l.fil, fx: (g.x - l.x0) / l.w });
+    }
+    essai(solBarre(), { type: 'barre' });
+    return mieux;
+  }
+  function sePoser(sol) {
+    const c = C(), f = F(), choc = borne(g.vy, 0, 1500);
+    g.y = sol.y; g.tourne = 0; g.vol = 0; g.bal = 0; g.vBal = 0; g.ecrase = Math.min(1, 0.25 + choc / 900); g.vx = 0; g.vy = 0; g.v = 0; g.sol = null;
+    if (sol.type === 'poutre' && c) {
+      g.lieu = 'poutre'; g.t = sol.t; g.cibleT = null;
+      c.porter(g.t, c.POIDS); c.choc(choc * 0.0012 * (0.55 + 0.45 * g.t));
+    } else if (sol.type === 'objet') {
+      g.lieu = 'objet'; g.sol = sol;
+      if (sol.fil && f) f.charger(sol.fil, sol.fx, choc * 0.014);
+    } else {
+      g.lieu = 'barre'; g.cibleX = null; g.yPage = window.scrollY; g.vPage = 0;
+      g.resteEnBas = true;                                   /* posé en bas par le visiteur : il n'y remonte pas tout seul */
+    }
+  }
+
   /* ---------- boucle ---------- */
   function pas(now) {
     raf = 0;
     const dt = borne(dernier ? (now - dernier) / 1000 : 0.016, 0.001, 0.04);
     dernier = now;
-    const c = C(), W = doc.documentElement.clientWidth;
+    const c = C(), W = doc.documentElement.clientWidth, m = marge();
     let actif = false, vit = 0, surPlace = false;
 
     if (g.lieu === 'air') {
@@ -1653,6 +1765,24 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
       g.vol = Math.sin(Math.PI * u);
       if (!a.chute && Math.abs(x1 - a.x0) > 4) g.dir = Math.sign(x1 - a.x0);
       if (u >= 1) atterrir(a);
+      actif = true;
+    } else if (g.lieu === 'tenu') {                          /* dans la main du visiteur : il pend, avec un temps de retard */
+      const vMain = prise ? prise.vx : 0;
+      if (prise) { prise.vx *= Math.exp(-dt * 5); prise.vy *= Math.exp(-dt * 5); }
+      g.vBal += ((borne(-vMain * 0.035, -34, 34) - g.bal) * 95 - g.vBal * 9) * dt; g.bal += g.vBal * dt;
+      g.tourne = g.bal; g.vol = 1;
+      vit = 130; surPlace = true;                            /* il pédale dans le vide */
+      if (Math.abs(vMain) > 60) g.dir = Math.sign(vMain);
+      actif = true;
+    } else if (g.lieu === 'chute') {                         /* lâché : il tombe jusqu'au premier appui */
+      const yAvant = g.y, bas = solBarre();
+      g.vy += GRAV * dt; g.vx *= Math.exp(-dt * 0.9);
+      g.x += g.vx * dt; g.y += g.vy * dt;
+      if (g.x < m) { g.x = m; g.vx = Math.abs(g.vx) * 0.45; } else if (g.x > W - m) { g.x = W - m; g.vx = -Math.abs(g.vx) * 0.45; }
+      g.vBal += ((borne(-g.vx * 0.03, -30, 30) - g.bal) * 60 - g.vBal * 8) * dt; g.bal += g.vBal * dt;
+      g.tourne = g.bal; g.vol = 1; vit = 90; surPlace = true;
+      if (yAvant > bas) sePoser({ type: 'barre', y: bas });  /* lâché sous le cartouche : il remonte dessus */
+      else if (g.vy > 0) { const sol = solSous(yAvant, g.y); if (sol) sePoser(sol); }
       actif = true;
     } else if (g.lieu === 'poutre') {
       if (!c || !praticable()) {
@@ -1672,8 +1802,24 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
         g.x = c.xEcran(g.t); g.y = c.yEcran(g.t) - g.h;
       }
       actif = vit > 0 || g.h > 0 || g.vh !== 0 || now - g.defile < 220 || g.lieu === 'air';
+    } else if (g.lieu === 'objet') {                         /* posé sur un trait ou sur une photo */
+      const l = g.sol ? ligneDe(g.sol.el) : null, bas = solBarre(), f = F();
+      if (!l || l.y > bas - 5) {                             /* support masqué, ou passé sous le cartouche : il reprend sa place en bas */
+        quitterSol(); g.lieu = 'barre'; g.h = 0; g.vh = 0; g.x = borne(g.x, m, W - m); g.y = bas; g.yPage = window.scrollY; g.vPage = 0;
+      } else if (l.y < g.H * 0.55) {                         /* le support sort par le haut de l'écran : il saute en bas */
+        g.x = l.x0 + g.sol.fx * l.w; g.y = l.y;
+        quitterSol(); sauterVers('barre', now);
+      } else {
+        const fil = g.sol.fil, enLAir = g.h > 1, impact = chuter(dt);
+        if (fil && f) {
+          if (impact) f.charger(fil, g.sol.fx, impact * 0.014);
+          else if (g.h > 1 && !enLAir) f.decharger(fil);     /* il vient de quitter le trait, qui se redresse */
+        }
+        g.x = l.x0 + g.sol.fx * l.w; g.y = l.y + (fil && f ? f.fleche(fil, g.sol.fx) : 0) - g.h;
+      }
+      actif = g.h > 0 || g.vh !== 0 || g.lieu === 'air' || now - g.defile < 220;
     } else if (g.lieu === 'barre') {
-      const vmax = souris ? 320 : 210, m = marge();
+      const vmax = souris ? 320 : 210;
       let cible = null;
       if (g.forceX !== null) cible = g.forceX;
       else if (souris) {
@@ -1681,7 +1827,7 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
       } else {
         const maxi = Math.max(1, doc.documentElement.scrollHeight - window.innerHeight);
         const p = m + (W - 2 * m) * borne(window.scrollY / maxi, 0, 1);
-        if (Math.abs(p - g.x) > (g.cibleX === null ? 7 : 1.5)) cible = p;
+        if (!g.resteEnBas && Math.abs(p - g.x) > (g.cibleX === null ? 7 : 1.5)) cible = p;
       }
       g.cibleX = cible;
       if (cible === null) g.v = 0;
@@ -1689,10 +1835,11 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
         const d = cible - g.x;
         g.v = Math.abs(d) < 1.5 ? 0 : borne(d * 6.5, -vmax, vmax);
         g.x += g.v * dt;
-        if (g.forceX !== null && Math.abs(d) < 2) { g.forceX = null; g.v = 0; const f = g.apresMarche; g.apresMarche = null; if (f) f(); }
+        if (g.forceX !== null && Math.abs(d) < 2) { g.forceX = null; g.v = 0; const fn = g.apresMarche; g.apresMarche = null; if (fn) fn(); }
       }
       vit = Math.abs(g.v);
       const yPage = window.scrollY, vPage = (yPage - g.yPage) / dt;
+      if (yPage !== g.yPage) g.resteEnBas = g.resteEnBas && praticable();   /* dès que la poutre a quitté l'écran, il redevient libre de la rejoindre */
       g.yPage = yPage;
       g.vPage += (vPage - g.vPage) * (1 - Math.exp(-dt * 10));
       if (vit === 0 && Math.abs(g.vPage) > 40) {             /* la page défile : il marche sur place, dans le sens de la visite */
@@ -1700,7 +1847,7 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
       }
       chuter(dt);
       g.y = solBarre() - g.h;
-      if (c && g.forceX === null && g.h === 0 && now - g.defile > 380 && praticable()) sauterVers('poutre', now);
+      if (c && !g.resteEnBas && g.forceX === null && g.h === 0 && now - g.defile > 380 && praticable()) sauterVers('poutre', now);
       actif = vit > 0 || g.h > 0 || g.vh !== 0 || g.lieu === 'air' || now - g.defile < 460 || Math.abs(g.vPage) > 5;
     }
 
@@ -1715,11 +1862,12 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
     g.ecrase *= Math.exp(-dt * 12); if (g.ecrase < 0.01) g.ecrase = 0;
     const ec = (now - g.debClign) / 170, clign = ec >= 0 && ec < 1 ? 1 - Math.abs(2 * ec - 1) : 0;
     let rx = 0, ry = 0;
-    if (g.marche > 0.3) rx = g.dir;
+    if (g.lieu === 'tenu' || g.lieu === 'chute') { rx = 0; ry = g.lieu === 'chute' ? 0.9 : -0.5; }   /* il regarde la main, puis le sol qui approche */
+    else if (g.marche > 0.3) rx = g.dir;
     else if (souris && g.sx !== null) { rx = borne((g.sx - g.x) / 260, -1, 1); ry = borne((g.sy - (g.y - g.H * 0.72)) / 320, -1, 1); }
     g.rx += (rx - g.rx) * (1 - Math.exp(-dt * 9)); g.ry += (ry - g.ry) * (1 - Math.exp(-dt * 9));
-    const etire = g.h > 0 ? -borne(Math.abs(g.vh) / 2600, 0, 0.3) : 0;
-    fig.poser({ phase: g.phase, marche: g.marche, dir: g.dir, salut: g.salut, t: now / 1000, rx: g.rx, ry: g.ry, clign, ecrase: g.ecrase + etire, haut: g.h, vol: g.vol });
+    const etire = g.h > 0 ? -borne(Math.abs(g.vh) / 2600, 0, 0.3) : (g.lieu === 'tenu' ? -0.12 : g.lieu === 'chute' ? -borne(g.vy / 3200, 0, 0.3) : 0);
+    fig.poser({ phase: g.phase, marche: g.marche, dir: g.dir, salut: g.salut, t: now / 1000, rx: g.rx, ry: g.ry, clign, ecrase: g.ecrase + etire, haut: g.lieu === 'tenu' || g.lieu === 'chute' ? 150 : g.h, vol: g.vol });
     placer();
     actif = actif || g.marche > 0 || g.salut > 0 || g.ecrase > 0 || ec < 1 || now < g.finSalut || Math.abs(rx - g.rx) > 0.02 || Math.abs(ry - g.ry) > 0.02;
     if (actif) reveiller(); else dernier = 0;
@@ -1750,23 +1898,59 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
   function masquer() {
     if (g.lieu === 'parti') return;
     const c = C();
-    taire(); racine.classList.add('sort');
-    if (c) { if (g.lieu === 'poutre') c.porter(g.t, 0); c.piloter(false); }
+    taire(); racine.classList.add('sort'); racine.classList.remove('tenu');
+    quitterSol();
+    if (c) c.piloter(false);
     if (figure) figure.classList.remove('avec-guide');
-    g.lieu = 'parti'; YB.guide.present = false;
+    prise = null; g.lieu = 'parti'; YB.guide.present = false;
     setTimeout(() => { racine.hidden = true; }, 340);
   }
 
   /* ---------- écoute ---------- */
-  clic.addEventListener('click', () => {
-    if (g.lieu === 'air' || g.lieu === 'absent' || g.lieu === 'parti') return;
-    if (g.lieu === 'poutre') { bondir(540); return; }       /* sur la poutre, un clic le fait sauter */
+  function auClic() {
+    if (g.lieu === 'poutre') { bondir(540); return; }       /* sur la poutre ou sur un support, un clic le fait sauter */
+    if (g.lieu === 'objet') { bondir(480); return; }
+    if (g.lieu !== 'barre') return;
     if (!reduce) bondir(430);
-    enCours = ''; dire('Je vous suis jusqu’à la dernière planche.', 5200, true);
+    enCours = ''; dire(reduce ? 'Je vous suis jusqu’à la dernière planche.' : SUIVI, 5600, true);
+  }
+  /* On l'attrape à la souris ou au doigt : au-delà de quelques pixels c'est un déplacement, sinon un simple clic. */
+  clic.addEventListener('pointerdown', ev => {
+    if ((ev.pointerType === 'mouse' && ev.button !== 0) || prise || g.lieu === 'absent' || g.lieu === 'parti') return;
+    prise = { id: ev.pointerId, x0: ev.clientX, y0: ev.clientY, dx: ev.clientX - g.x, dy: ev.clientY - g.y, glisse: false, px: ev.clientX, py: ev.clientY, pt: ev.timeStamp, vx: 0, vy: 0 };
+    try { clic.setPointerCapture(ev.pointerId); } catch (err) { /* capture indisponible : le déplacement reste possible au-dessus de la figurine */ }
+    ev.preventDefault();
   });
+  clic.addEventListener('pointermove', ev => {
+    if (!prise || ev.pointerId !== prise.id) return;
+    if (!prise.glisse) {
+      if (reduce || Math.hypot(ev.clientX - prise.x0, ev.clientY - prise.y0) < 7) return;
+      prise.glisse = true;                                   /* il reste accroché par l'endroit où on l'a saisi */
+      soulever();
+    }
+    const dt = Math.max(4, ev.timeStamp - prise.pt) / 1000, k = Math.min(1, dt * 22);
+    prise.vx += ((ev.clientX - prise.px) / dt - prise.vx) * k; prise.vy += ((ev.clientY - prise.py) / dt - prise.vy) * k;
+    prise.px = ev.clientX; prise.py = ev.clientY; prise.pt = ev.timeStamp;
+    g.x = ev.clientX - prise.dx; g.y = ev.clientY - prise.dy;
+    reveiller();
+  });
+  const finPrise = ev => {
+    if (!prise || ev.pointerId !== prise.id) return;
+    const p = prise;
+    prise = null;
+    try { clic.releasePointerCapture(ev.pointerId); } catch (err) { /* déjà relâchée */ }
+    if (p.glisse) lacher(p, ev.type === 'pointercancel' || ev.timeStamp - p.pt > 90);
+    else if (ev.type === 'pointerup') auClic();
+  };
+  clic.addEventListener('pointerup', finPrise);
+  clic.addEventListener('pointercancel', finPrise);
+  clic.addEventListener('dragstart', ev => ev.preventDefault());
+  clic.addEventListener('contextmenu', ev => { if (prise) ev.preventDefault(); });
+
   bBouton.addEventListener('click', masquer);
   addEventListener('scroll', () => { g.defile = performance.now(); reveiller(); }, { passive: true });
   addEventListener('resize', () => { mesurer(); if (reduce && g.lieu === 'barre') { g.x = marge() + 6; g.y = solBarre(); placer(); } reveiller(); }, { passive: true });
+  doc.addEventListener('click', reveiller, true);            /* un clic peut changer la mise en page (mode express, filtres) */
   if (!reduce) {
     doc.addEventListener('pointermove', ev => { if (ev.pointerType === 'mouse') { g.sx = ev.clientX; g.sy = ev.clientY; reveiller(); } }, { passive: true });
     doc.documentElement.addEventListener('mouseleave', () => { g.sx = null; });
@@ -1797,6 +1981,7 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
     if (g.lieu === 'parti' || g.lieu === 'absent' || dites.has(id)) return;
     const reste = g.finAccueil - performance.now();
     if (reste > 0) { attente = setTimeout(() => commenter(id), reste + 400); return; }
+    if (g.lieu === 'tenu' || g.lieu === 'chute') { attente = setTimeout(() => commenter(id), 1200); return; }
     dites.add(id); dire(REPLIQUES[id], 4400, false); enCours = id;
   }
   if ('IntersectionObserver' in window) {
@@ -1815,9 +2000,14 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
     setTimeout(() => { if (g.lieu !== 'parti') { if (!doc.hidden) { g.debClign = performance.now(); reveiller(); } cligner(); } }, 2600 + Math.random() * 3400);
   })();
 
-  /* la poutre rappelle la figurine après chaque image, pour que ses pieds restent posés dessus */
-  const c0 = C();
+  /* La poutre et les traits rappellent la figurine après chaque image, pour que ses pieds restent posés dessus. */
+  const c0 = C(), f0 = F();
   if (c0) c0.apres = () => { if (g.lieu === 'poutre') { g.x = c0.xEcran(g.t); g.y = c0.yEcran(g.t) - g.h; placer(); } };
+  if (f0) f0.apres = () => {
+    if (g.lieu !== 'objet' || !g.sol || !g.sol.fil) return;
+    const l = ligneDe(g.sol.el);
+    if (l) { g.x = l.x0 + g.sol.fx * l.w; g.y = l.y + f0.fleche(g.sol.fil, g.sol.fx) - g.h; placer(); }
+  };
 
   /* entrée : après le tracé du diagramme de la couverture, sinon peu après le chargement */
   if (c0 && scene && scene.classList.contains('vivante')) {
