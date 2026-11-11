@@ -1726,7 +1726,7 @@ html.js .scene-poutre:not(.vivante):not(.secours) :is(.contour, .ord, #cur) { vi
     for (let i = 0; i < supports.length; i++) {
       if (!supports[i].vu) continue;
       const l = ligneDe(supports[i].el);
-      if (!l || g.x < l.x0 + 6 || g.x > l.x1 - 6 || l.y < g.H * 0.6) continue;
+      if (!l || g.x < l.x0 + 6 || g.x > l.x1 - 6 || l.y < g.H + 4) continue;   /* seulement là où il tient en entier à l'écran */
       essai(l.y, { type: 'objet', el: supports[i].el, fil: l.fil, fx: (g.x - l.x0) / l.w });
     }
     essai(solBarre(), { type: 'barre' });
